@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "729054337545",
+    "project_id": "here-you-go-e428e",
+    "storage_bucket": "here-you-go-e428e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:729054337545:android:fef6d2d77f678c5346b6d8",
+        "android_client_info": {
+          "package_name": "com.hyg.here_you_go_1"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "729054337545-um44a9n9echrd952q59uav7mp6ujqkem.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hyg.here_you_go_1",
+            "certificate_hash": "e844dc2815fb27b98a2b6245c5e2f45c2c2208f8"
+          }
+        },
+        {
+          "client_id": "729054337545-8spl2hvrp554uf6agnpd53kf8ifekbgp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAFFvZUa0V6PlmKdF_rw66uGoneFNqJRG4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "729054337545-8spl2hvrp554uf6agnpd53kf8ifekbgp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
