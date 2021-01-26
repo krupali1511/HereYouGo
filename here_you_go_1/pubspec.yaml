@@ -27,6 +27,10 @@ dependencies:
   firebase_core:
   cloud_firestore:
   rflutter_alert: ^1.0.2
+  image_picker: ^0.6.7+21
+  path:
+  firebase_auth:
+  firebase_storage:
 
 dev_dependencies:
   flutter_test:
