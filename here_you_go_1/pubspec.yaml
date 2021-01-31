@@ -19,6 +19,12 @@ dependencies:
   cloud_firestore:
   rflutter_alert: ^1.0.2
   flutter_currency_converter: ^0.0.3
+  firebase_auth:
+  google_sign_in:
+  http: ^0.12.1
+  provider: ^3.1.0
+  image_picker: ^0.6.7+21
+  path:
 
 
 dev_dependencies:
