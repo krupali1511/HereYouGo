@@ -24,6 +24,8 @@ class _ExpenseState extends State<Expense> {
   String collection = "expense";
   static double expenseTotal = 0.00;
   static int num = 0;
+    static var currencyTo ;
+  static var currencyFrom ;
 
   currencyCheck() async {
     try{
@@ -246,11 +248,14 @@ class _ExpenseState extends State<Expense> {
             dropdownValue = newValue;
           });
         },
-        items: <String>['One', 'Two', 'Free', 'Four']
+        items: <String>['INR', 'USD', 'CAD', 'AUD','AUE']
             .map<DropdownMenuItem<String>>((String value) {
           return DropdownMenuItem<String>(
             value: value,
             child: Text(value),
+            onTap: (){
+              currencyTo = value;
+            },
           );
         })
             .toList(),

@@ -13,6 +13,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 File _image;
 var email;
 var username;
+
 final databaseReference = Firestore.instance;
 TextEditingController _email = new TextEditingController();
 TextEditingController _username = new TextEditingController();
@@ -25,6 +26,14 @@ class ProfilePage extends StatefulWidget {
 
 class MapScreenState extends State<ProfilePage>
     with SingleTickerProviderStateMixin {
+  final GlobalKey<FormState> _registerFormKey = GlobalKey<FormState>();
+  TextEditingController userInputController;
+  TextEditingController bioInputController;
+  TextEditingController emailInputController;
+  TextEditingController countryInputController;
+  TextEditingController stateInputController;
+  TextEditingController mobileInputController;
+
   bool _status = true;
   final FocusNode myFocusNode = FocusNode();
 
@@ -33,9 +42,15 @@ class MapScreenState extends State<ProfilePage>
 
   @override
   void initState() {
-    // TODO: implement initState
+    userInputController = new TextEditingController();
+    bioInputController = new TextEditingController();
+    emailInputController = new TextEditingController();
+    countryInputController = new TextEditingController();
+    stateInputController = new TextEditingController();
+    mobileInputController = new TextEditingController();
     super.initState();
   }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -187,7 +202,7 @@ class MapScreenState extends State<ProfilePage>
                                 children: <Widget>[
                                   new Flexible(
                                     child: new TextField(
-                                      controller: _username=username,
+                                      controller: userInputController,
                                       decoration: const InputDecoration(
 
                                         hintText: "Enter Your Name"
@@ -230,6 +245,7 @@ class MapScreenState extends State<ProfilePage>
                                     child: new TextField(
                                       keyboardType: TextInputType.multiline,
                                       maxLines: null,
+                                      controller: bioInputController,
                                       decoration: const InputDecoration(
                                         hintText: "Enter Your Bio",
                                       ),
@@ -269,7 +285,7 @@ class MapScreenState extends State<ProfilePage>
                                 children: <Widget>[
                                   new Flexible(
                                     child: new TextField(
-                                      controller: _email=email,
+                                      controller: emailInputController,
                                       decoration: const InputDecoration(
                                           hintText: "Enter Email ID"),
                                       enabled: !_status,
@@ -305,8 +321,11 @@ class MapScreenState extends State<ProfilePage>
                                 children: <Widget>[
                                   new Flexible(
                                     child: new TextField(
+
                                       decoration: const InputDecoration(
+
                                           hintText: "Enter Mobile Number"),
+                                            controller:mobileInputController,
                                       enabled: !_status,
                                     ),
                                   ),
@@ -354,6 +373,7 @@ class MapScreenState extends State<ProfilePage>
                                     child: Padding(
                                       padding: EdgeInsets.only(right: 10.0),
                                       child: new TextField(
+                                        controller: countryInputController,
                                         decoration: const InputDecoration(
                                             hintText: "Enter Country"),
                                         enabled: !_status,
@@ -363,6 +383,7 @@ class MapScreenState extends State<ProfilePage>
                                   ),
                                   Flexible(
                                     child: new TextField(
+                                      controller: stateInputController,
                                       decoration: const InputDecoration(
                                           hintText: "Enter State"),
                                       enabled: !_status,
@@ -406,7 +427,7 @@ class MapScreenState extends State<ProfilePage>
                     textColor: Colors.white,
                     color: Colors.green,
                     onPressed: () {
-
+                          updateData();
                     },
                     shape: new RoundedRectangleBorder(
                         borderRadius: new BorderRadius.circular(20.0)),
@@ -445,6 +466,13 @@ class MapScreenState extends State<ProfilePage>
   Future getImage() async {
     var image = await ImagePicker.pickImage(source: ImageSource.gallery);
 
+    FirebaseUser user = await FirebaseAuth.instance.currentUser();
+    Firestore.instance
+        .collection("user")
+        .document(user.uid)
+        .setData({
+           "image" : image});
+
     setState(() {
       _image = image;
       print('Image Path $_image');
@@ -468,7 +496,7 @@ class MapScreenState extends State<ProfilePage>
       final String downloadUrl =
       await addImg.ref.getDownloadURL();
       await Firestore.instance
-          .collection("users")
+          .collection("user")
           .document(firebaseUser.uid)
           .updateData({"url": downloadUrl});
       setState(() {
@@ -496,6 +524,22 @@ class MapScreenState extends State<ProfilePage>
       },
 
     );
+  }
+
+  Future updateData() async {
+    FirebaseUser user = await FirebaseAuth.instance.currentUser();
+    Firestore.instance
+            .collection("user")
+            .document(user.uid)
+            .setData({
+        "uid": user.uid,
+        "email": emailInputController,
+        "name" : userInputController,
+        "bio" : bioInputController,
+        "country" : countryInputController,
+        "state" : stateInputController,
+        "mobile" : mobileInputController
+        });
   }
 }
 
