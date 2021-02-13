@@ -5,8 +5,6 @@ import 'package:flutter_currency_converter/Currency.dart';
 import 'package:here_you_go_1/models/ExpenseModel.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:flutter_currency_converter/flutter_currency_converter.dart';
-import 'package:flutter_currency_converter/flutter_currency_converter.dart';
-
 
 class Expense extends StatefulWidget {
   const Expense({Key key}) : super(key: key);
@@ -24,24 +22,22 @@ class _ExpenseState extends State<Expense> {
   String collection = "expense";
   static double expenseTotal = 0.00;
   static int num = 0;
-    static var currencyTo ;
-  static var currencyFrom ;
+  static var currencyTo;
+
+  static var currencyFrom;
 
   currencyCheck() async {
-    try{
+    try {
       print("currencycheck");
       var test2 = await FlutterCurrencyConverter.convert(
           Currency(Currency.INR, amount: 800.0), Currency(Currency.USD));
       setState(() {
         test = test2.toString();
       });
-    }
-    catch(e){
+    } catch (e) {
       print("inside catch of currencycheck");
       print(e.toString());
     }
-
-
   }
 
   getExpenses() {
@@ -54,9 +50,11 @@ class _ExpenseState extends State<Expense> {
     try {
       setState(() {
         expenseTotal += double.parse(amountController.text);
+        num +=1;
+
       });
       Firestore.instance.runTransaction(
-            (Transaction transaction) async {
+        (Transaction transaction) async {
           await Firestore.instance
               .collection(collection)
               .document()
@@ -65,9 +63,10 @@ class _ExpenseState extends State<Expense> {
       );
       // add total to expensetotal table
       Firestore.instance.runTransaction(
-            (Transaction transaction) async {
+        (Transaction transaction) async {
           await Firestore.instance
-              .collection('expensetotal').where('uid', isEqualTo: 1);
+              .collection('expensetotal')
+              .where('uid', isEqualTo: 1);
         },
       );
     } catch (e) {
@@ -77,6 +76,10 @@ class _ExpenseState extends State<Expense> {
 
   updateExpense(ExpenseModel expenseModel, String note, double amount) {
     try {
+      setState(() {
+        expenseTotal -= expenseModel.amount;
+        expenseTotal += amount;
+      });
       Firestore.instance.runTransaction((transaction) async {
         await transaction
             .update(expenseModel.reference, {'note': note, 'amount': amount});
@@ -89,25 +92,25 @@ class _ExpenseState extends State<Expense> {
   deleteExpense(ExpenseModel expenseModel) {
     setState(() {
       expenseTotal -= expenseModel.amount;
+      num -=1;
     });
     Firestore.instance.runTransaction(
-          (Transaction transaction) async {
+      (Transaction transaction) async {
         await transaction.delete(expenseModel.reference);
       },
     );
   }
 
   initExpenses() async {
-    QuerySnapshot querySnapshot = await Firestore.instance.collection("expense").getDocuments();
+    QuerySnapshot querySnapshot =
+        await Firestore.instance.collection("expense").getDocuments();
     var list = querySnapshot.documents;
-    for (int i=0;i<list.length;i++){
+    for (int i = 0; i < list.length; i++) {
       expenseTotal += list[i]['amount'];
-
     }
     num = list.length;
     print(expenseTotal.toString());
   }
-
 
   Widget buildBody(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
@@ -203,139 +206,133 @@ class _ExpenseState extends State<Expense> {
     currencyCheck();
   }
 
-
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
         child: Column(
           children: [
-          SizedBox(
-          height: 100,
-          child: Column(
-              children: [
-              Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-          RichText(
-          text: TextSpan(
-          text: expenseTotal.toString(),
-          style: TextStyle(
-              fontSize: 30.0,
-              fontWeight: FontWeight.bold,
-              color: Colors.black),
+            SizedBox(
+              height: 100,
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      RichText(
+                        text: TextSpan(
+                          text: expenseTotal.toString(),
+                          style: TextStyle(
+                              fontSize: 30.0,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black),
+                        ),
+                      ),
+                      Text(
+                        "Total",
+                        style: TextStyle(fontSize: 22.0),
+                      ),
+                      Text(test),
+                      DropdownButton<String>(
+                        value: dropdownValue,
+                        icon: Icon(Icons.arrow_downward),
+                        iconSize: 24,
+                        elevation: 16,
+                        style: TextStyle(color: Colors.deepPurple),
+                        underline: Container(
+                          height: 2,
+                          color: Colors.deepPurpleAccent,
+                        ),
+                        onChanged: (String newValue) {
+                          setState(() {
+                            dropdownValue = newValue;
+                          });
+                        },
+                        items: <String>['INR', 'USD', 'CAD', 'AUD', 'AUE']
+                            .map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                            onTap: () {
+                              currencyTo = value;
+                            },
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      RichText(
+                        text: TextSpan(
+                          text: num.toString(),
+                          style: TextStyle(
+                              fontSize: 30.0,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black),
+                        ),
+                      ),
+                      Text(
+                        "Total Expenses",
+                        style: TextStyle(fontSize: 20.0),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            Flexible(
+              child: buildBody(context),
+            ),
+          ],
         ),
-
       ),
-      Text(
-        "Total",
-        style: TextStyle(fontSize: 22.0),
+      appBar: AppBar(
+        title: Text(title),
       ),
-      Text(test),
-      DropdownButton<String>(
-        value: dropdownValue,
-        icon: Icon(Icons.arrow_downward),
-        iconSize: 24,
-        elevation: 16,
-        style: TextStyle(
-            color: Colors.deepPurple
-        ),
-        underline: Container(
-          height: 2,
-          color: Colors.deepPurpleAccent,
-        ),
-        onChanged: (String newValue) {
-          setState(() {
-            dropdownValue = newValue;
-          });
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Alert(
+              context: context,
+              title: "Add",
+              content: Column(
+                children: <Widget>[
+                  TextField(
+                    controller: noteController,
+                    decoration: InputDecoration(
+                      icon: Icon(Icons.book),
+                      labelText: 'Note',
+                    ),
+                  ),
+                  TextField(
+                    controller: amountController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      icon: Icon(Icons.money),
+                      labelText: 'Amount',
+                    ),
+                  ),
+                ],
+              ),
+              buttons: [
+                DialogButton(
+                  onPressed: () {
+                    addExpenses();
+                    noteController.clear();
+                    amountController.clear();
+                    Navigator.pop(context);
+                  },
+                  child: Text(
+                    "Add",
+                    style: TextStyle(color: Colors.white, fontSize: 20),
+                  ),
+                )
+              ]).show();
         },
-        items: <String>['INR', 'USD', 'CAD', 'AUD','AUE']
-            .map<DropdownMenuItem<String>>((String value) {
-          return DropdownMenuItem<String>(
-            value: value,
-            child: Text(value),
-            onTap: (){
-              currencyTo = value;
-            },
-          );
-        })
-            .toList(),
+        label: Text('Add'),
+        icon: Icon(Icons.add),
+        backgroundColor: Colors.blue,
       ),
-      ],
-
-    ),
-    Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-    RichText(
-    text: TextSpan(
-    text: num.toString(),
-    style: TextStyle(
-    fontSize: 30.0,
-    fontWeight: FontWeight.bold,
-    color: Colors.black),
-    ),
-    ),
-    Text(
-    "Total Expenses",
-    style: TextStyle(fontSize: 20.0),
-    ),
-    ],
-    ),
-    ],
-    ),
-    ),
-    Flexible(
-    child: buildBody(context),
-    ),
-    ],
-    ),
-    ),
-    appBar: AppBar(
-    title: Text(title),
-    ),
-    floatingActionButton: FloatingActionButton.extended(
-    onPressed: () {
-    Alert(
-    context: context,
-    title: "Add",
-    content: Column(
-    children: <Widget>[
-    TextField(
-    controller: noteController,
-    decoration: InputDecoration(
-    icon: Icon(Icons.book),
-    labelText: 'Note',
-    ),
-    ),
-    TextField(
-    controller: amountController,
-    keyboardType: TextInputType.number,
-    decoration: InputDecoration(
-    icon: Icon(Icons.money),
-    labelText: 'Amount',
-    ),
-    ),
-    ],
-    ),
-    buttons: [
-    DialogButton(
-    onPressed: () {
-    addExpenses();
-    noteController.clear();
-    amountController.clear();
-    Navigator.pop(context);
-    },
-    child: Text(
-    "Add",
-    style: TextStyle(color: Colors.white, fontSize: 20),
-    ),
-    )
-    ]).show();
-    },
-    label: Text('Add'),
-    icon: Icon(Icons.add),
-    backgroundColor: Colors.blue,
-    ),
     );
-    }
+  }
 }

@@ -20,7 +20,7 @@ final countryController=TextEditingController();
 final stateController=TextEditingController();
 final mobileController=TextEditingController();
 final nameController= new TextEditingController();
- final emailController= new TextEditingController();
+final emailController= new TextEditingController();
 String filename;
 String uploadedFileURL;
 String collection="user";
@@ -478,6 +478,7 @@ class MapScreenState extends State<ProfilePage>
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
      email = user.email;
      username = user.displayName;
+     return user;
   }
 
   Future<String> uploadPic(BuildContext context) async {
@@ -511,9 +512,10 @@ class MapScreenState extends State<ProfilePage>
   }
 
   Future UpdateData() {
-
-    uploadPic(context).then((value) {
-      userModel blog=userModel(name: nameController.text,email:emailController.text ,image: value,bio: bioController.text, country:countryController.text,state:stateController.text, mobile:mobileController.text);
+  print('in upload data');
+    //uploadPic(context).then((value) { return value; });
+      userModel blog=userModel(name: nameController.text,email:emailController.text ,image: uploadedFileURL,bio: bioController.text, country:countryController.text,state:stateController.text, mobile:mobileController.text);
+      print(nameController.text);
       try{
         firestore.runTransaction(
               (Transaction transaction) async {
@@ -528,7 +530,7 @@ class MapScreenState extends State<ProfilePage>
       catch(e){
         print(e.toString());
       }
-    });
+
   }
 }
 
