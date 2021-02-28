@@ -46,6 +46,7 @@ class MapScreenState extends State<ProfilePage>
   @override
   void initState() {
     super.initState();
+    getcurrentUser(context);
   }
   
 
@@ -477,6 +478,7 @@ class MapScreenState extends State<ProfilePage>
   Future getcurrentUser(BuildContext context) async{
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
      email = user.email;
+     print(user.email);
      username = user.displayName;
      return user;
   }

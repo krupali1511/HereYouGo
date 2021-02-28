@@ -1,6 +1,10 @@
+import 'package:here_you_go_1/models/userModel.dart';
 import 'package:here_you_go_1/navdrawer/circular_image.dart';
 import 'package:here_you_go_1/navdrawer/zoom_scaffold.dart';
 import 'package:flutter/material.dart';
+import 'package:here_you_go_1/services/ProfilePage.dart';
+import 'package:here_you_go_1/src/expenses.dart';
+import 'package:path/path.dart';
 import 'package:provider/provider.dart';
 
 class MenuScreen extends StatelessWidget {
@@ -11,7 +15,7 @@ class MenuScreen extends StatelessWidget {
     MenuItem(Icons.search, 'Search'),
     MenuItem(Icons.money, 'Expense'),
     MenuItem(Icons.favorite, 'Favourite'),
-   // MenuItem(Icons.code, 'Prom-codes'),
+    MenuItem(Icons.location_searching_outlined, 'Location'),
     MenuItem(Icons.format_list_bulleted, 'Blog'),
   ];
 
@@ -41,11 +45,18 @@ class MenuScreen extends StatelessWidget {
                     NetworkImage(imageUrl),
                   ),
                 ),
-                Text(
-                  'Tiya',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
+                InkWell(
+                  onTap: (){
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => ProfilePage()));
+                  },
+                  child: Text(
+                    'Tiya',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                    ),
+
                   ),
                 )
               ],
@@ -54,6 +65,19 @@ class MenuScreen extends StatelessWidget {
             Column(
               children: options.map((item) {
                 return ListTile(
+                  onTap: (){
+                    if(item.title == 'Search')
+                    print('hey');
+                    if(item.title == 'Expense')
+                     {
+                       Navigator.push(context,
+                           MaterialPageRoute(builder: (context) => Expense()));
+                     }
+                    if(item.title == 'Favourite')
+                      print('ok');
+                    if(item.title == 'Blog')
+                      print('yo');
+                  },
                   leading: Icon(
                     item.icon,
                     color: Colors.white,

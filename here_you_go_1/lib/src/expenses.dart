@@ -5,6 +5,15 @@ import 'package:flutter_currency_converter/Currency.dart';
 import 'package:here_you_go_1/models/ExpenseModel.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:flutter_currency_converter/flutter_currency_converter.dart';
+class Expenses extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Expense(),
+    );
+  }
+}
 
 class Expense extends StatefulWidget {
   const Expense({Key key}) : super(key: key);
@@ -16,23 +25,30 @@ class Expense extends StatefulWidget {
 class _ExpenseState extends State<Expense> {
   String title = "Expense";
   String test = "";
-  static String dropdownValue;
+  static String dropdownValuefrom;
+  static String dropdownValueto;
+  static double curencyAmount = 0.00;
   final noteController = TextEditingController();
   final amountController = TextEditingController();
   String collection = "expense";
   static double expenseTotal = 0.00;
   static int num = 0;
-  static var currencyTo;
-
-  static var currencyFrom;
+  static String currencyTo = "INR";
+  static String currencyFrom = "INR";
 
   currencyCheck() async {
     try {
       print("currencycheck");
-      var test2 = await FlutterCurrencyConverter.convert(
-          Currency(Currency.INR, amount: 800.0), Currency(Currency.USD));
+      curencyAmount = await FlutterCurrencyConverter.convert(
+          Currency(currencyFrom, amount: expenseTotal), Currency(currencyTo)
+      );
       setState(() {
-        test = test2.toString();
+        try{
+          test = curencyAmount.toString();
+        }
+        catch(e){
+          print(e.toString());
+        }
       });
     } catch (e) {
       print("inside catch of currencycheck");
@@ -140,15 +156,16 @@ class _ExpenseState extends State<Expense> {
       key: ValueKey(data.reference.documentID),
       padding: EdgeInsets.symmetric(vertical: 8.0),
       child: Container(
+        margin: EdgeInsets.symmetric(horizontal: 4.0),
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey),
-          borderRadius: BorderRadius.circular(5.0),
+          color: Colors.black12,
+          borderRadius: BorderRadius.circular(10.0),
         ),
         child: ListTile(
           title: Text(expense.amount.toString()),
           subtitle: Text(expense.note),
           trailing: IconButton(
-            icon: Icon(Icons.delete),
+            icon: Icon(Icons.delete,color: Colors.black,),
             onPressed: () {
               // delete
               deleteExpense(expense);
@@ -193,7 +210,10 @@ class _ExpenseState extends State<Expense> {
                   )
                 ]).show();
           },
+
         ),
+
+
       ),
     );
   }
@@ -203,84 +223,52 @@ class _ExpenseState extends State<Expense> {
     super.initState();
     print("init");
     initExpenses();
-    currencyCheck();
+
   }
 
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
+
         child: Column(
+
           children: [
             SizedBox(
-              height: 100,
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      RichText(
-                        text: TextSpan(
-                          text: expenseTotal.toString(),
-                          style: TextStyle(
-                              fontSize: 30.0,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black),
+              height: 200,
+              width: double.infinity,
+              child: Container(
+                child: Card(
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text("Total Expense",
+                        style: TextStyle(color: Colors.white),),
+                        Text(expenseTotal.toString(), style: TextStyle(color: Colors.white),),
+                        RichText(
+                          text: TextSpan(
+                            text: num.toString(),
+                            style: TextStyle(
+                                fontSize: 30.0,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white),
+                          ),
                         ),
-                      ),
-                      Text(
-                        "Total",
-                        style: TextStyle(fontSize: 22.0),
-                      ),
-                      Text(test),
-                      DropdownButton<String>(
-                        value: dropdownValue,
-                        icon: Icon(Icons.arrow_downward),
-                        iconSize: 24,
-                        elevation: 16,
-                        style: TextStyle(color: Colors.deepPurple),
-                        underline: Container(
-                          height: 2,
-                          color: Colors.deepPurpleAccent,
+                        Text(
+                          "Total Expenses",
+                          style: TextStyle(fontSize: 20.0,color: Colors.white),
                         ),
-                        onChanged: (String newValue) {
-                          setState(() {
-                            dropdownValue = newValue;
-                          });
-                        },
-                        items: <String>['INR', 'USD', 'CAD', 'AUD', 'AUE']
-                            .map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                            onTap: () {
-                              currencyTo = value;
-                            },
-                          );
-                        }).toList(),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      RichText(
-                        text: TextSpan(
-                          text: num.toString(),
-                          style: TextStyle(
-                              fontSize: 30.0,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black),
-                        ),
-                      ),
-                      Text(
-                        "Total Expenses",
-                        style: TextStyle(fontSize: 20.0),
-                      ),
-                    ],
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
                   ),
-                ],
+                  color: Colors.black87,
+                ),
               ),
             ),
+
             Flexible(
               child: buildBody(context),
             ),
@@ -329,9 +317,10 @@ class _ExpenseState extends State<Expense> {
                 )
               ]).show();
         },
-        label: Text('Add'),
-        icon: Icon(Icons.add),
-        backgroundColor: Colors.blue,
+        label: Text('Add',
+          style: TextStyle(color:Colors.white)),
+        icon: Icon(Icons.add, color:Colors.white),
+        backgroundColor: Colors.black87,
       ),
     );
   }
