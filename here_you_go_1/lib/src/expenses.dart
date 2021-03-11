@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -8,10 +9,7 @@ import 'package:flutter_currency_converter/flutter_currency_converter.dart';
 class Expenses extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: Expense(),
-    );
+    return Expense();
   }
 }
 
@@ -35,7 +33,10 @@ class _ExpenseState extends State<Expense> {
   static int num = 0;
   static String currencyTo = "INR";
   static String currencyFrom = "INR";
-
+  bool isExpenseLoaded = false;
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+  new GlobalKey<RefreshIndicatorState>();
+ // FirebaseUser user = FirebaseAuth.instance.currentUser() as FirebaseUser;
   currencyCheck() async {
     try {
       print("currencycheck");
@@ -121,10 +122,15 @@ class _ExpenseState extends State<Expense> {
     QuerySnapshot querySnapshot =
         await Firestore.instance.collection("expense").getDocuments();
     var list = querySnapshot.documents;
+    var temp = 0.00;
     for (int i = 0; i < list.length; i++) {
-      expenseTotal += list[i]['amount'];
+      temp += list[i]['amount'];
     }
     num = list.length;
+    setState(() {
+      expenseTotal = temp;
+      isExpenseLoaded = true;
+    });
     print(expenseTotal.toString());
   }
 
@@ -221,62 +227,70 @@ class _ExpenseState extends State<Expense> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => _refreshIndicatorKey.currentState.show());
     print("init");
-    initExpenses();
-
   }
 
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-
-        child: Column(
-
-          children: [
-            SizedBox(
-              height: 200,
-              width: double.infinity,
-              child: Container(
-                child: Card(
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Text("Total Expense",
-                        style: TextStyle(color: Colors.white),),
-                        Text(expenseTotal.toString(), style: TextStyle(color: Colors.white),),
-                        RichText(
-                          text: TextSpan(
-                            text: num.toString(),
-                            style: TextStyle(
-                                fontSize: 30.0,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white),
+      body: RefreshIndicator(
+        key: _refreshIndicatorKey,
+        onRefresh: () async {
+          if(!isExpenseLoaded)
+            await initExpenses();
+          return null;
+        },
+        child: Container(
+          child: Column(
+            children: [
+              SizedBox(
+                height: 200,
+                width: double.infinity,
+                child: Container(
+                  child: Card(
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Text("Total Expense",
+                          style: TextStyle(color: Colors.white,fontSize: 18.0),),
+                          Text(expenseTotal.toString(), style: TextStyle(color: Colors.white,fontSize: 20.0,                                fontWeight: FontWeight.bold,
+                          ),),
+                          RichText(
+                            text: TextSpan(
+                              text: num.toString(),
+                              style: TextStyle(
+                                  fontSize: 16.0,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white),
+                            ),
                           ),
-                        ),
-                        Text(
-                          "Total Expenses",
-                          style: TextStyle(fontSize: 20.0,color: Colors.white),
-                        ),
-                      ],
+                          Text(
+                            "Total Expenses",
+                            style: TextStyle(fontSize: 16.0,color: Colors.white),
+                          ),
+                        ],
+                      ),
                     ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    color: Colors.black87,
                   ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  color: Colors.black87,
                 ),
               ),
-            ),
 
-            Flexible(
-              child: buildBody(context),
-            ),
-          ],
+              Flexible(
+                child: buildBody(context),
+              ),
+            ],
+          ),
         ),
       ),
       appBar: AppBar(
         title: Text(title),
+        backgroundColor: Colors.black87,
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {

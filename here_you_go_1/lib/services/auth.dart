@@ -1,10 +1,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:here_you_go_1/models/user.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:here_you_go_1/models/userModel.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-
+  FirebaseUser _user;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  bool isSignIn =false;
+  bool google =false;
   // create user obj base on firebase obj
   User _userFromFirebase(FirebaseUser user) {
     return user != null ? User(uid: user.uid) : null;
@@ -59,10 +63,35 @@ class AuthService {
       return true;
     } catch (e) {
       print("Error in function");
+      print(e.toString());
       return false;
     }
   }
+  Future<FirebaseUser> signInWithGoogle(userModel model) async {
+    try{
+      model.state = "Busy";
+      GoogleSignInAccount googleSignInAccount = await _googleSignIn.signIn();
+      GoogleSignInAuthentication googleSignInAuthentication =
+          await googleSignInAccount.authentication;
+      AuthCredential credential = GoogleAuthProvider.getCredential(
+        accessToken: googleSignInAuthentication.accessToken,
+        idToken: googleSignInAuthentication.idToken,
+      );
+      AuthResult authResult = await _auth.signInWithCredential(credential);
+      _user = authResult.user;
+      assert(!_user.isAnonymous);
+      assert(await _user.getIdToken() != null);
+      FirebaseUser currentUser = await _auth.currentUser();
+      assert(_user.uid == currentUser.uid);
+      model.state = "Idle";
+      print("User Name: ${_user.displayName}");
+      print("User Email ${_user.email}");
+    }
+    catch(e){
+      print(e.toString());
+    }
 
+  }
   // sign out
 
   Future signOut() async {

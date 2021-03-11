@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:here_you_go_1/models/userModel.dart';
 import 'package:here_you_go_1/src/constants.dart';
 import 'package:here_you_go_1/services/auth.dart';
+import 'package:path/path.dart';
 
 class Login extends StatefulWidget {
   final Function toggleView;
@@ -16,13 +19,14 @@ class _LoginState extends State<Login> {
 
   String email = '';
   String password = '';
+  userModel usermodel = new userModel();
 
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: kPrimaryLightColor,
+      backgroundColor: Colors.white,
       body: Container(
         height: size.height,
         width: double.infinity,
@@ -39,13 +43,24 @@ class _LoginState extends State<Login> {
                 width: 300.0,
                 height: 80.0,
                 child: TextField(
+                  style: TextStyle(color: Colors.white),
+                  cursorColor: Colors.white,
                   decoration: InputDecoration(
+                    fillColor: Colors.black87,
+                    filled: true,
                     hintText: "Enter Email",
+                    hintStyle: TextStyle(color: Colors.white),
                     prefixIcon: Icon(
                       Icons.email,
-                      color: kPrimaryColor,
+                      color: Colors.white,
                     ),
                     border: new OutlineInputBorder(
+                      borderRadius: const BorderRadius.all(
+                        const Radius.circular(50.0),
+                      ),
+                    ),
+                    focusedBorder: new OutlineInputBorder(
+                      borderSide: BorderSide(color:Colors.black87),
                       borderRadius: const BorderRadius.all(
                         const Radius.circular(50.0),
                       ),
@@ -60,19 +75,30 @@ class _LoginState extends State<Login> {
                 width: 300.0,
                 height: 80.0,
                 child: TextField(
+                  style: TextStyle(color: Colors.white),
+                  cursorColor: Colors.white,
                   obscureText: true,
                   decoration: InputDecoration(
+                    fillColor: Colors.black87,
+                    filled: true,
                     prefixIcon: Icon(
                       Icons.lock,
-                      color: kPrimaryColor,
+                      color: Colors.white,
                     ),
                     border: new OutlineInputBorder(
                       borderRadius: const BorderRadius.all(
                         const Radius.circular(50.0),
                       ),
                     ),
+                    focusedBorder: new OutlineInputBorder(
+                      borderSide: BorderSide(color:Colors.black87),
+                      borderRadius: const BorderRadius.all(
+                        const Radius.circular(50.0),
+                      ),
+                    ),
                     hintText: "Enter Password",
-                    focusColor: kPrimaryLightColor,
+                   hintStyle: TextStyle(color: Colors.white),
+                   focusColor: Colors.white,
                   ),
                   onChanged: (val) {
                     setState(() => password = val);
@@ -83,8 +109,8 @@ class _LoginState extends State<Login> {
                 height: 70.0,
                 width: 300.0,
                 child: RaisedButton(
-                  color: kPrimaryColor,
-                  child: Text("SignIn"),
+                  color: Colors.black87,
+                  child: Text("SignIn", style: TextStyle(color: Colors.white),),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(50)),
                   onPressed: () async {
@@ -129,25 +155,19 @@ class _LoginState extends State<Login> {
                 endIndent: 30,
                 color: kPrimaryLightColor,
               ),
-              RaisedButton.icon(
-                onPressed: () async {
-                  bool res = await AuthService().loginWithGoogle();
-                  if (!res) print("error from button");
+              InkWell(
+                focusColor:Colors.black87,
+                onTap: ()async {
+                    bool res = (await AuthService().signInWithGoogle(usermodel)) as bool;
+                    if (!res) print("error from button");
                 },
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(20.0))),
-                label: Text(
-                  'Login with Google',
-                  style: TextStyle(color: Colors.white),
-                ),
-                icon: Icon(
-                  Icons.language,
-                  color: Colors.white,
-                ),
-                textColor: Colors.white,
-                splashColor: Colors.red,
-                color: kPrimaryColor,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8.0),
+                  child: SvgPicture.asset(
+                      'assets/svg/icon_google.svg',height: 50,width: 50,),
+                  ),
               ),
+
               FlatButton(
                 child: Text(
                   'Create Account SignUn',

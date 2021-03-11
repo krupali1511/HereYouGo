@@ -15,4 +15,3 @@ class ExpenseModel {
             'amount': amount};
   }
 }
-

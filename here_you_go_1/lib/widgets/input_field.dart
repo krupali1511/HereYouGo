@@ -14,16 +14,16 @@ class InputField extends StatelessWidget {
       controller: controller,
       decoration: InputDecoration(
           focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.blue, width: 2.0),
+              borderSide: BorderSide(color: Colors.white, width: 2.0),
               borderRadius: BorderRadius.circular(15)
           ),
           enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.lightBlue, width: 2.0),
+              borderSide: BorderSide(color: Colors.white, width: 2.0),
               borderRadius: BorderRadius.circular(15)
           ),
           labelText: labelText,
           labelStyle: TextStyle(
-            color: Colors.blue,
+            color: Colors.white,
             fontSize: 17.0,
           )
       ),

@@ -29,7 +29,6 @@ class userModel{
       'country': country,
       'state': state,
       'mobile': mobile,
-
     };
   }
 }
