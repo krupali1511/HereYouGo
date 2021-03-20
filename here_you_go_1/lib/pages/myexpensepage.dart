@@ -30,7 +30,7 @@ class _ExpenseState extends State<Expense> {
   bool isExpenseLoaded = false;
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
   new GlobalKey<RefreshIndicatorState>();
-  // FirebaseUser user = FirebaseAuth.instance.currentUser() as FirebaseUser;
+  //FirebaseUser user = FirebaseAuth.instance.currentUser() as FirebaseUser;
   currencyCheck() async {
     try {
       print("currencycheck");
@@ -72,14 +72,7 @@ class _ExpenseState extends State<Expense> {
               .setData(expense.toJson());
         },
       );
-      // add total to expensetotal table
-      Firestore.instance.runTransaction(
-            (Transaction transaction) async {
-          await Firestore.instance
-              .collection('expensetotal')
-              .where('uid', isEqualTo: 1);
-        },
-      );
+
     } catch (e) {
       print(e.toString());
     }

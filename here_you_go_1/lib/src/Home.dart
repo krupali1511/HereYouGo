@@ -33,7 +33,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin{
     return new MaterialApp(
       title: 'Home',
       theme: new ThemeData(
-        primarySwatch: Colors.blue,
       ),
       debugShowCheckedModeBanner: false,
       home: SideBarLayout(),

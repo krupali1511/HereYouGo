@@ -9,7 +9,7 @@ import 'package:here_you_go_1/bloc.navigation_bloc/navigation_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as Path;
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:here_you_go_1/models/userModel.dart';
+import 'package:here_you_go_1/models/user.dart';
 import 'package:here_you_go_1/models/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
@@ -522,7 +522,7 @@ class MapScreenState extends State<ProfilePage>
 
   Future UpdateData() {
 
-      userModel user=userModel(name: nameController.text,email:_emailcontroller.text ,image: downloadUrl ,bio: bioController.text, country:countryController.text,state:stateController.text, mobile:mobileController.text);
+      User user=User(name: nameController.text,email:_emailcontroller.text ,image: downloadUrl ,bio: bioController.text, country:countryController.text,state:stateController.text, mobile:mobileController.text);
       try{
         firestore.runTransaction(
               (Transaction transaction) async {

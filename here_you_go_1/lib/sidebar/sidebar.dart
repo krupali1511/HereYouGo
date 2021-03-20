@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rxdart/rxdart.dart';
@@ -18,6 +19,8 @@ class _SideBarState extends State<SideBar> with SingleTickerProviderStateMixin<S
   Stream<bool> isSidebarOpenedStream;
   StreamSink<bool> isSidebarOpenedSink;
   final _animationDuration = const Duration(milliseconds: 500);
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
 
   @override
   void initState() {
@@ -154,9 +157,14 @@ class _SideBarState extends State<SideBar> with SingleTickerProviderStateMixin<S
                         icon: Icons.settings,
                         title: "Settings",
                       ),*/
-                      MenuItem(
-                        icon: Icons.exit_to_app,
-                        title: "Logout",
+                      InkWell(
+                        onTap: (){
+                          _auth.signOut();
+                        },
+                        child: MenuItem(
+                          icon: Icons.exit_to_app,
+                          title: "Logout",
+                        ),
                       ),
                     ],
                   ),

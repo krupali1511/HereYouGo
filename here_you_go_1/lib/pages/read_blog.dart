@@ -12,7 +12,7 @@ class ReadBlog extends StatelessWidget {
       home: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.black87,
-          title: Text("Blogs",style: TextStyle(color: Colors.white),),
+          title: Text("Blog",style: TextStyle(color: Colors.white),),
         ),
         body: BlogScreen(),
       ),

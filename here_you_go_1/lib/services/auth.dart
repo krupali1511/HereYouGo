@@ -1,7 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:here_you_go_1/models/tripModel.dart';
 import 'package:here_you_go_1/models/user.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:here_you_go_1/models/userModel.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -21,12 +22,30 @@ class AuthService {
   }
 
   // Register with email and password
-
   Future registerWithEmailAndPassword(String email, String password) async {
     try {
       AuthResult result = await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
       FirebaseUser user = result.user;
+
+      //creating app user using firebase user
+      User appuser = new User(uid: user.uid,email: user.email);
+      Firestore.instance.runTransaction(
+            (Transaction transaction) async {
+          await Firestore.instance
+              .collection('user')
+              .document(user.uid)
+              .setData(appuser.toJson());
+        },
+      );
+      //creating trip document on user registration
+      Firestore.instance.runTransaction( (Transaction transaction) async {
+        await Firestore.instance
+            .collection('trip')
+            .document(user.uid).setData({'uid':user.uid});
+      },
+      );
+      print(appuser.uid);
       print("It comes here");
       return _userFromFirebase(user);
     } catch (e) {
@@ -41,7 +60,6 @@ class AuthService {
       AuthResult result = await _auth.signInWithEmailAndPassword(
           email: email, password: password);
       FirebaseUser user = result.user;
-      print("It comes here");
       return _userFromFirebase(user);
     } catch (e) {
       print(e.toString());
@@ -59,6 +77,15 @@ class AuthService {
           GoogleAuthProvider.getCredential(
               idToken: (await account.authentication).idToken,
               accessToken: (await account.authentication).accessToken));
+      User appuser = new User(uid: res.user.uid,email: res.user.email);
+      Firestore.instance.runTransaction(
+            (Transaction transaction) async {
+          await Firestore.instance
+              .collection('user')
+              .document(res.user.uid)
+              .setData(appuser.toJson());
+        },
+      );
       if (res.user == null) return false;
       return true;
     } catch (e) {
@@ -66,31 +93,6 @@ class AuthService {
       print(e.toString());
       return false;
     }
-  }
-  Future<FirebaseUser> signInWithGoogle(userModel model) async {
-    try{
-      model.state = "Busy";
-      GoogleSignInAccount googleSignInAccount = await _googleSignIn.signIn();
-      GoogleSignInAuthentication googleSignInAuthentication =
-          await googleSignInAccount.authentication;
-      AuthCredential credential = GoogleAuthProvider.getCredential(
-        accessToken: googleSignInAuthentication.accessToken,
-        idToken: googleSignInAuthentication.idToken,
-      );
-      AuthResult authResult = await _auth.signInWithCredential(credential);
-      _user = authResult.user;
-      assert(!_user.isAnonymous);
-      assert(await _user.getIdToken() != null);
-      FirebaseUser currentUser = await _auth.currentUser();
-      assert(_user.uid == currentUser.uid);
-      model.state = "Idle";
-      print("User Name: ${_user.displayName}");
-      print("User Email ${_user.email}");
-    }
-    catch(e){
-      print(e.toString());
-    }
-
   }
   // sign out
 
