@@ -1,8 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:here_you_go_1/Screens/Trip.dart';
+import 'package:here_you_go_1/Screens/TripDetails.dart';
 import 'package:here_you_go_1/bloc.navigation_bloc/navigation_bloc.dart';
+import 'package:here_you_go_1/models/tripModel.dart';
 
 class MyTripsPage extends StatelessWidget with NavigationStates {
   @override
@@ -18,45 +19,99 @@ class MyTrips extends StatefulWidget {
 }
 
 class _MyTripsState extends State<MyTrips> {
-  dynamic data;
-
-  getData() async {
+  String userid;
+  getUser() async {
     String userId = ( await FirebaseAuth.instance.currentUser()).uid;
-    print(userId);
-    final DocumentReference document =   Firestore.instance.collection('trip').document(userId).collection('trips').document();
+    userid = userId;
+  }
+  
+  getUserTrip(){
+    getUser();
+    return Firestore.instance.collection('trip').where('uid',isEqualTo: userid).snapshots();
 
-    await document.get().then<dynamic>(( DocumentSnapshot snapshot) async{
-      setState(() {
-        data =snapshot.data;
-        print(data);
-      });
-    });
+  }
+
+  deleteTrip(trip tripModel){
+    Firestore.instance.runTransaction(
+          (Transaction transaction) async {
+        await transaction.delete(tripModel.reference);
+      },
+    );
+  }
+  Widget buildBody(BuildContext context) {
+    return StreamBuilder<QuerySnapshot>(
+
+      stream: getUserTrip(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Text('Error ${snapshot.error}');
+        }
+        if (snapshot.hasData) {
+          //print("Documents ${snapshot.data.documents.length}");
+          return buildList(context, snapshot.data.documents);
+        }
+        return CircularProgressIndicator();
+      },
+    );
+  }
+  Widget buildList(BuildContext context, List<DocumentSnapshot> snapshot) {
+    return ListView(
+      scrollDirection: Axis.vertical,
+      shrinkWrap: true,
+      children: snapshot.map((data) => buildListItem(context, data)).toList(),
+    );
+  }
+  Widget buildListItem(BuildContext context, DocumentSnapshot data) {
+    final tripModel = trip.fromSnapshot(data);
+    return Padding(
+      key: ValueKey(data.reference.documentID),
+      padding: EdgeInsets.symmetric(vertical: 8.0),
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: 4.0),
+        decoration: BoxDecoration(
+          color: Colors.black12,
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        child: ListTile(
+          title: Text(tripModel.name.toString()),
+          subtitle: Text(tripModel.catvalue),
+          trailing: IconButton(
+            icon: Icon(Icons.delete,color: Colors.black,),
+            onPressed: () {
+              // delete
+              deleteTrip(tripModel);
+            },
+          ),
+          onTap: () async {
+
+          },
+
+        ),
+
+
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    getData();
     return Scaffold(
-      body: Column(
-        children: [
-          Container(
-            child: Text("screen"),
-          ),
-
-        ],
+      appBar: AppBar(
+        title: Text("My Trips",style: TextStyle(color: Colors.white),),
+        backgroundColor: Colors.black,
       ),
+     body: SingleChildScrollView(
+       child: Container(
+          child:buildBody(context) ,
+        ),
+     ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => Trip()));
-        },
-        label: Text('Add',
-            style: TextStyle(color:Colors.white)),
-        icon: Icon(Icons.add, color:Colors.white),
-        backgroundColor: Colors.black87,
-      ),
-
+          onPressed: (){
+            Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => TripDetails()));
+          },
+          label: Text("add")),
     );
   }
 

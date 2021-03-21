@@ -5,9 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:country_state_city_picker/country_state_city_picker.dart';
 import 'package:here_you_go_1/bloc.navigation_bloc/navigation_bloc.dart';
 import 'package:here_you_go_1/models/tripModel.dart';
-import 'package:here_you_go_1/services/TripApi.dart';
+import 'package:here_you_go_1/pages/mytripspage.dart';
 import 'package:intl/intl.dart';
-import 'Trip.dart';
 String countryValue, stateValue,cityValue,dcountryValue,dstateValue,dcityValue,motValue,catValue;
 
 class TripDetails extends StatefulWidget with NavigationStates{
@@ -23,9 +22,14 @@ class TripDetails extends StatefulWidget with NavigationStates{
 class _TripDetailsState extends State<TripDetails> {
   final _formTripKey = GlobalKey<FormState>();
   String formattedDate = "";
-
+  String userid;
+  getUser() async {
+    String userId = ( await FirebaseAuth.instance.currentUser()).uid;
+    userid = userId;
+  }
   _TripDetailsState() {
     formattedDate = DateFormat('yyyy-MM-dd – kk:mm').format(selectedDate);
+    getUser();
   }
 
   String validateName(String value) {
@@ -52,7 +56,7 @@ class _TripDetailsState extends State<TripDetails> {
               AddData();
               Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => Trip()));
+                  MaterialPageRoute(builder: (context) => MyTripsPage()));
             },
             child: Text(
               widget.name != null && widget.name.isNotEmpty ? "UPDATE" : 'SAVE',
@@ -264,6 +268,7 @@ class _TripDetailsState extends State<TripDetails> {
 
   Future AddData() {
     trip tr = trip(
+      uid: userid,
       scountry: countryValue,
       sstate: stateValue,
       source: cityValue,

@@ -38,13 +38,8 @@ class AuthService {
               .setData(appuser.toJson());
         },
       );
-      //creating trip document on user registration
-      Firestore.instance.runTransaction( (Transaction transaction) async {
-        await Firestore.instance
-            .collection('trip')
-            .document(user.uid).setData({'uid':user.uid});
-      },
-      );
+
+
       print(appuser.uid);
       print("It comes here");
       return _userFromFirebase(user);
