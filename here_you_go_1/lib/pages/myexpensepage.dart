@@ -17,39 +17,14 @@ class Expense extends StatefulWidget with NavigationStates{
 class _ExpenseState extends State<Expense> {
   String title = "Expense";
   String test = "";
-  static String dropdownValuefrom;
-  static String dropdownValueto;
-  static double curencyAmount = 0.00;
   final noteController = TextEditingController();
   final amountController = TextEditingController();
   String collection = "expense";
   static double expenseTotal = 0.00;
   static int num = 0;
-  static String currencyTo = "INR";
-  static String currencyFrom = "INR";
   bool isExpenseLoaded = false;
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
   new GlobalKey<RefreshIndicatorState>();
-  //FirebaseUser user = FirebaseAuth.instance.currentUser() as FirebaseUser;
-  currencyCheck() async {
-    try {
-      print("currencycheck");
-      curencyAmount = await FlutterCurrencyConverter.convert(
-          Currency(currencyFrom, amount: expenseTotal), Currency(currencyTo)
-      );
-      setState(() {
-        try{
-          test = curencyAmount.toString();
-        }
-        catch(e){
-          print(e.toString());
-        }
-      });
-    } catch (e) {
-      print("inside catch of currencycheck");
-      print(e.toString());
-    }
-  }
 
   getExpenses() {
     return Firestore.instance.collection(collection).snapshots();

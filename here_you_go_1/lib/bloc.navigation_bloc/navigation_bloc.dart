@@ -1,7 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:here_you_go_1/Screens/TripDetails.dart';
+import 'package:here_you_go_1/pages/currencyConverter.dart';
 import 'package:here_you_go_1/pages/mytripspage.dart';
-import 'package:here_you_go_1/src/ProfilePage.dart';
+import 'file:///E:/SDP/here_you_go_1/lib/pages/ProfilePage.dart';
 import '../pages/MyBlogPage.dart';
 import '../pages/myexpensepage.dart';
 
@@ -13,6 +14,7 @@ enum NavigationEvents {
   MyExpenseClickedEvent,
   MyTripClickedEvent,
   MyProfileClickedEvent,
+  MyCurrencyConverterEvent,
 }
 
 abstract class NavigationStates {}
@@ -38,6 +40,9 @@ class NavigationBloc extends Bloc<NavigationEvents, NavigationStates> {
         break;
       case NavigationEvents.MyProfileClickedEvent:
         yield ProfilePage();
+        break;
+      case NavigationEvents.MyCurrencyConverterEvent:
+        yield CurrencyPage();
         break;
     }
   }

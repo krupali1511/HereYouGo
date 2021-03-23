@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:here_you_go_1/Screens/TripDetails.dart';
 import 'package:here_you_go_1/bloc.navigation_bloc/navigation_bloc.dart';
 import 'package:here_you_go_1/models/tripModel.dart';
+import 'package:here_you_go_1/services/SharedData.dart';
 
 class MyTripsPage extends StatelessWidget with NavigationStates {
   @override
@@ -19,17 +20,7 @@ class MyTrips extends StatefulWidget {
 }
 
 class _MyTripsState extends State<MyTrips> {
-  String userid;
-  getUser() async {
-    String userId = ( await FirebaseAuth.instance.currentUser()).uid;
-    userid = userId;
-  }
-  
-  getUserTrip(){
-    getUser();
-    return Firestore.instance.collection('trip').where('uid',isEqualTo: userid).snapshots();
-
-  }
+  SharedData sd = new SharedData();
 
   deleteTrip(trip tripModel){
     Firestore.instance.runTransaction(
@@ -41,7 +32,7 @@ class _MyTripsState extends State<MyTrips> {
   Widget buildBody(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
 
-      stream: getUserTrip(),
+      stream: sd.getUserTrip(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Text('Error ${snapshot.error}');
@@ -50,6 +41,7 @@ class _MyTripsState extends State<MyTrips> {
           //print("Documents ${snapshot.data.documents.length}");
           return buildList(context, snapshot.data.documents);
         }
+
         return CircularProgressIndicator();
       },
     );

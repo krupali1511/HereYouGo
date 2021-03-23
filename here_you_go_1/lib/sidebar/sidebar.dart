@@ -143,6 +143,15 @@ class _SideBarState extends State<SideBar> with SingleTickerProviderStateMixin<S
                         },
                       ),
                       MenuItem(
+                        icon: Icons.refresh,
+                        title: "Currency Converter",
+                        onTap: (){
+                          onIconPressed();
+                          BlocProvider.of<NavigationBloc>(context).add(NavigationEvents.MyCurrencyConverterEvent);
+
+                        },
+                      ),
+                      MenuItem(
                         icon: Icons.favorite,
                         title: "Saved Trips",
                       ),
