@@ -1,14 +1,11 @@
 import 'package:bloc/bloc.dart';
 import 'package:here_you_go_1/Screens/TripDetails.dart';
-<<<<<<< HEAD
-import 'package:here_you_go_1/pages/mainTrip.dart';
-=======
+import 'package:here_you_go_1/pages/MyBlogPage.dart';
+import 'package:here_you_go_1/pages/ProfilePage.dart';
 import 'package:here_you_go_1/pages/currencyConverter.dart';
->>>>>>> 1f79553e5372dd9ef5e506f395adb6bbf2823a13
+import 'package:here_you_go_1/pages/mainTrip.dart';
+import 'package:here_you_go_1/pages/myexpensepage.dart';
 import 'package:here_you_go_1/pages/mytripspage.dart';
-import 'file:///E:/SDP/here_you_go_1/lib/pages/ProfilePage.dart';
-import '../pages/MyBlogPage.dart';
-import '../pages/myexpensepage.dart';
 
 import '../pages/homepage.dart';
 
@@ -37,7 +34,7 @@ class NavigationBloc extends Bloc<NavigationEvents, NavigationStates> {
         yield MyBlogPage();
         break;
       case NavigationEvents.MyTripClickedEvent:
-        yield MyTripsPage();
+        yield Usertrip();
         break;
       case NavigationEvents.MyExpenseClickedEvent:
         yield Expense();

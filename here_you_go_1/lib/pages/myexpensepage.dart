@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import '../bloc.navigation_bloc/navigation_bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_currency_converter/Currency.dart';
 import 'package:here_you_go_1/models/ExpenseModel.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
-import 'package:flutter_currency_converter/flutter_currency_converter.dart';
 
 class Expense extends StatefulWidget with NavigationStates{
   const Expense({Key key}) : super(key: key);
@@ -82,7 +80,7 @@ class _ExpenseState extends State<Expense> {
 
   initExpenses() async {
     QuerySnapshot querySnapshot =
-    await Firestore.instance.collection("expense").getDocuments();
+    await Firestore.instance.collection("expense").where("tripId", isEqualTo: "trips").getDocuments();
     var list = querySnapshot.documents;
     var temp = 0.00;
     for (int i = 0; i < list.length; i++) {

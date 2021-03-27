@@ -39,7 +39,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: <Widget>[
                     //custom nav drawer
-
                     Container(
                       height: 57.6,
                       width: 57.6,

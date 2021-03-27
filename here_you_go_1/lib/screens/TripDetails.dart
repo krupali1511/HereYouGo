@@ -5,8 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:country_state_city_picker/country_state_city_picker.dart';
 import 'package:here_you_go_1/bloc.navigation_bloc/navigation_bloc.dart';
 import 'package:here_you_go_1/models/tripModel.dart';
-import 'package:here_you_go_1/src/ProfilePage.dart';
-import 'package:here_you_go_1/widgets/input_field.dart';
 import 'package:intl/intl.dart';
 String countryValue, stateValue,cityValue,dcountryValue,dstateValue,dcityValue,motValue,catValue;
 final nameController=TextEditingController();
