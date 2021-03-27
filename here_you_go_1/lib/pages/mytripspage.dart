@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:here_you_go_1/Screens/TripDetails.dart';
 import 'package:here_you_go_1/bloc.navigation_bloc/navigation_bloc.dart';
 import 'package:here_you_go_1/models/tripModel.dart';
-
-class MyTripsPage extends StatelessWidget with NavigationStates {
+import 'package:here_you_go_1/services/TripApi.dart';
+String imagePath;
+String name;
+class MyTripsPage extends StatelessWidget with NavigationStates{
   @override
   Widget build(BuildContext context) {
     return MyTrips();
@@ -20,39 +22,28 @@ class MyTrips extends StatefulWidget {
 
 class _MyTripsState extends State<MyTrips> {
   String userid;
-  getUser() async {
-    String userId = ( await FirebaseAuth.instance.currentUser()).uid;
-    userid = userId;
-  }
-  
-  getUserTrip(){
-    getUser();
-    return Firestore.instance.collection('trip').where('uid',isEqualTo: userid).snapshots();
 
-  }
+  final Map<String, AssetImage> images = {"Adventure": AssetImage("assets/images/adventure.jpg"),
+    "Roadtrip": AssetImage("assets/images/roadtrip.jpg"),
+    "Religious": AssetImage("assets/images/religious.jpg"),"Family": AssetImage("assets/images/family.jpg"),
+    "Single": AssetImage("assets/images/single.jpg"),"Group": AssetImage("assets/images/group.jpg"),};
 
-  deleteTrip(trip tripModel){
-    Firestore.instance.runTransaction(
-          (Transaction transaction) async {
-        await transaction.delete(tripModel.reference);
-      },
-    );
-  }
   Widget buildBody(BuildContext context) {
-    return StreamBuilder<QuerySnapshot>(
+   return StreamBuilder<QuerySnapshot>(
 
-      stream: getUserTrip(),
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return Text('Error ${snapshot.error}');
-        }
-        if (snapshot.hasData) {
-          //print("Documents ${snapshot.data.documents.length}");
-          return buildList(context, snapshot.data.documents);
-        }
-        return CircularProgressIndicator();
-      },
-    );
+     stream: getUserTrip(),
+     builder: (context, snapshot) {
+       if (snapshot.hasError) {
+         print('hellooooo');
+         return Text('Error ${snapshot.error}');
+       }
+       if (snapshot.hasData) {
+         //print("Documents ${snapshot.data.documents.length}");
+         return buildList(context, snapshot.data.documents);
+       }
+       return CircularProgressIndicator();
+     },
+   );
   }
   Widget buildList(BuildContext context, List<DocumentSnapshot> snapshot) {
     return ListView(
@@ -63,32 +54,62 @@ class _MyTripsState extends State<MyTrips> {
   }
   Widget buildListItem(BuildContext context, DocumentSnapshot data) {
     final tripModel = trip.fromSnapshot(data);
+    name=tripModel.name.toString();
     return Padding(
-      key: ValueKey(data.reference.documentID),
-      padding: EdgeInsets.symmetric(vertical: 8.0),
+      padding:
+      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 4.0),
-        decoration: BoxDecoration(
-          color: Colors.black12,
-          borderRadius: BorderRadius.circular(10.0),
+        height: 115,
+        child: Stack(
+          children: [
+            Positioned(
+              left: 50,
+              child: Container(
+                width: 290.0,
+                height: 115.0,
+                child: Card(
+                  color: Colors.black87,
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                      top: 8.0,
+                      bottom: 8.0,
+                      left: 64.0,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment:
+                      MainAxisAlignment.spaceAround,
+                      children: <Widget>[
+                        Text(tripModel.source.toString()+'-'+tripModel.destination.toString(),style: TextStyle(color:Colors.white), ),
+                        Row(
+                          children: <Widget>[
+
+                            Text(tripModel.modesoftransportation.toString(),style: TextStyle(color:Colors.white))
+                          ],
+                        )
+
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              top: 7.5,
+              child: Container(
+                width: 100.0,
+                height: 100.0,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  image: DecorationImage(
+                    fit: BoxFit.cover,
+                    image: tripModel.catvalue.toString()== null ? images["wind"] : images[tripModel.catvalue],
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
-        child: ListTile(
-          title: Text(tripModel.name.toString()),
-          subtitle: Text(tripModel.catvalue),
-          trailing: IconButton(
-            icon: Icon(Icons.delete,color: Colors.black,),
-            onPressed: () {
-              // delete
-              deleteTrip(tripModel);
-            },
-          ),
-          onTap: () async {
-
-          },
-
-        ),
-
-
       ),
     );
   }
@@ -97,7 +118,7 @@ class _MyTripsState extends State<MyTrips> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("My Trips",style: TextStyle(color: Colors.white),),
+        title: Text("Trips",style: TextStyle(color: Colors.white),),
         backgroundColor: Colors.black,
       ),
      body: SingleChildScrollView(
@@ -106,6 +127,7 @@ class _MyTripsState extends State<MyTrips> {
         ),
      ),
       floatingActionButton: FloatingActionButton.extended(
+        backgroundColor: Colors.black87,
           onPressed: (){
             Navigator.push(
                 context,
@@ -113,6 +135,25 @@ class _MyTripsState extends State<MyTrips> {
           },
           label: Text("add")),
     );
+
+  }
+
+  deleteTrip(trip tripModel){
+    Firestore.instance.runTransaction(
+          (Transaction transaction) async {
+        await transaction.delete(tripModel.reference);
+      },
+    );
+  }
+  getUser() async {
+    String userId = ( await FirebaseAuth.instance.currentUser()).uid;
+    userid = userId;
+  }
+
+  getUserTrip()  {
+    getUser();
+    return Firestore.instance.collection('trip').document(userid).collection(name).snapshots();
+
   }
 
 }

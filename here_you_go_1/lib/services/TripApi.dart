@@ -1,62 +1,29 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:here_you_go_1/models/tripModel.dart';
 
-class FireBaseAPI {
+class SharedData {
   String userid="";
-  static Stream<QuerySnapshot> TripStream;
-  static CollectionReference reference;
+  SharedData(){}
 
-  FireBaseAPI(){
-    TripStream = Firestore.instance.collection('trip').snapshots();
-    reference = Firestore.instance.collection('trip');
-  }
-  getcurrentUser(BuildContext context) async {
-    FirebaseUser user = await FirebaseAuth.instance.currentUser();
-    userid = user.uid.toString();
+
+  getUser() async {
+    String userId = ( await FirebaseAuth.instance.currentUser()).uid;
+    userid = userId;
   }
 
-  static addTrip(String name, String source, String scountry, String sstate, String destination, String dcountry, String dstate, String modesoftransportation,
-  String date, TimeOfDay time,) {
-    Firestore.instance.runTransaction((Transaction transaction) async {
-      await reference.add({
-        "name": name,
-        "scountry": scountry,
-        "sstate": sstate,
-        "destination": destination,
-        "dcountry": dcountry,
-        "dstate": dstate,
-        "modesoftransportation": modesoftransportation,
-        "date": date,
-        "time": time,
-      });
-    });
+  getUserTrip(){
+    getUser();
+    return Firestore.instance.collection('trip').where('uid',isEqualTo: userid).snapshots();
+
   }
 
-  static removeTrip(String id) {
-    Firestore.instance.runTransaction((Transaction transaction) async {
-      await reference.document(id).delete().catchError((error) {
-        print(error);
-      });
-    });
-  }
-
-  static updateTrip(String id, String newName,String source, String scountry, String sstate, String destination, String dcountry, String dstate, String modesoftransportation,
-      DateTime date, TimeOfDay time,) {
-    Firestore.instance.runTransaction((Transaction transaction) async {
-      await reference.document(id).updateData({
-        "name": newName,
-        "scountry": scountry,
-        "sstate": sstate,
-        "destination": destination,
-        "dcountry": dcountry,
-        "dstate": dstate,
-        "modesoftransportation": modesoftransportation,
-        "date": date,
-        "time": time,
-      }).catchError((error) {
-        print(error);
-      });
-    });
+  deleteTrip(trip tripModel){
+    Firestore.instance.runTransaction(
+          (Transaction transaction) async {
+        await transaction.delete(tripModel.reference);
+      },
+    );
   }
 }

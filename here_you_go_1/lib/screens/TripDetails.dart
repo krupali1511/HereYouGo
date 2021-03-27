@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:country_state_city_picker/country_state_city_picker.dart';
 import 'package:here_you_go_1/bloc.navigation_bloc/navigation_bloc.dart';
 import 'package:here_you_go_1/models/tripModel.dart';
-import 'package:here_you_go_1/pages/mytripspage.dart';
+import 'package:here_you_go_1/src/ProfilePage.dart';
+import 'package:here_you_go_1/widgets/input_field.dart';
 import 'package:intl/intl.dart';
 String countryValue, stateValue,cityValue,dcountryValue,dstateValue,dcityValue,motValue,catValue;
+final nameController=TextEditingController();
 
 class TripDetails extends StatefulWidget with NavigationStates{
   final String name;
@@ -20,7 +22,6 @@ class TripDetails extends StatefulWidget with NavigationStates{
 }
 
 class _TripDetailsState extends State<TripDetails> {
-  final _formTripKey = GlobalKey<FormState>();
   String formattedDate = "";
   String userid;
   getUser() async {
@@ -48,42 +49,22 @@ class _TripDetailsState extends State<TripDetails> {
     return Scaffold(
       backgroundColor: Colors.white70,
       appBar: AppBar(title: Text(
-        'Trip', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold,),),
+        ' Add Trip', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold,),),
         backgroundColor: Colors.black87,
-        actions: <Widget>[
-          FlatButton(
-            onPressed: () {
-              AddData();
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => MyTripsPage()));
-            },
-            child: Text(
-              widget.name != null && widget.name.isNotEmpty ? "UPDATE" : 'SAVE',
-              style: Theme
-                  .of(context)
-                  .textTheme
-                  .subhead
-                  .copyWith(color: Colors.white),
-            ),
-          ),
-        ],
       ),
-      body: Padding(
+      body: SingleChildScrollView(
+        child:Container(
+        child:Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Container(
-            child: ListView(
+        child: Column(
               children: <Widget>[
-                SizedBox(height: 20,),
-                Text('Source', style: TextStyle(
-                  fontSize: 18, fontWeight: FontWeight.bold,),),
                 new Row(
                   children: <Widget>[
                     Expanded(
                       child: Container(
                           child: DropdownButtonHideUnderline(
                               child: Container(
-                                width: 500,
+                                width: 100,
                                 margin: EdgeInsets.only(left: 10.0,
                                     right: 10.0),
                                 decoration: ShapeDecoration(
@@ -205,50 +186,28 @@ class _TripDetailsState extends State<TripDetails> {
                       ),)
                 ),
                 SizedBox(height: 20,),
-                Text('Category', style: TextStyle(
-                  fontSize: 18, fontWeight: FontWeight.bold,),),
-                DropdownButtonHideUnderline(
-                    child: Container(
-                      width: 300,
-                      margin: EdgeInsets.only(left: 10.0, right: 10.0),
-                      decoration: ShapeDecoration(
-                          color: Colors.grey.shade300,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.all(
-                                  Radius.circular(10)))
-                      ),
-                      child: DropdownButton<String>(
-                        value: catValue,
-                        icon: Icon(Icons.arrow_drop_down),
-                        onChanged: (String newValue) {
-                          setState(() {
-                            catValue = newValue;
-                          });
-                        },
-                        hint: Text("Select Category"),
-                        items: <String>[
-                          'Adventure',
-                          'Nature',
-                          'Religious',
-                          'Family',
-                          'Couple'
-                        ]
-                            .map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Padding(
-                              padding: EdgeInsets.only(left: 4),
-                              child: Text(value),
-                            ),);
-                        }).toList(),
-                      ),)
+                 FlatButton(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                      side: BorderSide(color: Colors.blue)
+                  ),
+                  color: Colors.blue,
+                  textColor: Colors.white,
+                  padding: EdgeInsets.all(8.0),
+                  onPressed: () {AddData();},
+                  child: Text(
+                    "Add data",
+                    style: TextStyle(
+                      fontSize: 18.0,
+                    ),
+                  ),
                 ),
 
-              ],)
+              ],
 
         ),
       ),
-
+    ))
     );
   }
 
@@ -269,6 +228,7 @@ class _TripDetailsState extends State<TripDetails> {
   Future AddData() {
     trip tr = trip(
       uid: userid,
+      name:nameController.text,
       scountry: countryValue,
       sstate: stateValue,
       source: cityValue,
@@ -280,13 +240,12 @@ class _TripDetailsState extends State<TripDetails> {
       date:formattedDate,
     );
     try {
-      Firestore.instance.runTransaction(
-            (Transaction transaction) async {
-          await Firestore.instance
-              .collection('trip')
-              .document()
-              .setData(tr.toJson());
-        },
+      Firestore
+          .instance
+          .collection('trip')
+          .document(userid)
+          .collection('trips')
+          .add(tr.toJson(),
       );
       print('Data Added');
     } catch (e) {
@@ -294,3 +253,4 @@ class _TripDetailsState extends State<TripDetails> {
     }
   }
 }
+
