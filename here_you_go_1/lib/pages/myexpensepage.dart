@@ -27,7 +27,7 @@ class _ExpenseState extends State<Expense> {
   new GlobalKey<RefreshIndicatorState>();
 
   getExpenses() {
-    return Firestore.instance.collection(collection).snapshots();
+    return Firestore.instance.collection(collection).where("tripId", isEqualTo: "trips").snapshots();
   }
 
   addExpenses() {
@@ -66,7 +66,7 @@ class _ExpenseState extends State<Expense> {
     } catch (e) {
       print(e.toString());
     }
-  }
+  }   
 
   deleteExpense(ExpenseModel expenseModel) {
     setState(() {

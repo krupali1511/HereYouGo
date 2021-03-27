@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:here_you_go_1/Screens/TripDetails.dart';
 import 'package:here_you_go_1/bloc.navigation_bloc/navigation_bloc.dart';
