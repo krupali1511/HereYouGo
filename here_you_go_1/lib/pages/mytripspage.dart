@@ -1,13 +1,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:here_you_go_1/Screens/TripDetails.dart';
 import 'package:here_you_go_1/bloc.navigation_bloc/navigation_bloc.dart';
 import 'package:here_you_go_1/models/tripModel.dart';
+<<<<<<< HEAD
 import 'package:here_you_go_1/services/TripApi.dart';
 String imagePath;
 String name;
 class MyTripsPage extends StatelessWidget with NavigationStates{
+=======
+import 'package:here_you_go_1/services/SharedData.dart';
+
+class MyTripsPage extends StatelessWidget with NavigationStates {
+>>>>>>> 1f79553e5372dd9ef5e506f395adb6bbf2823a13
   @override
   Widget build(BuildContext context) {
     return MyTrips();
@@ -21,16 +26,21 @@ class MyTrips extends StatefulWidget {
 }
 
 class _MyTripsState extends State<MyTrips> {
+<<<<<<< HEAD
   String userid;
 
   final Map<String, AssetImage> images = {"Adventure": AssetImage("assets/images/adventure.jpg"),
     "Roadtrip": AssetImage("assets/images/roadtrip.jpg"),
     "Religious": AssetImage("assets/images/religious.jpg"),"Family": AssetImage("assets/images/family.jpg"),
     "Single": AssetImage("assets/images/single.jpg"),"Group": AssetImage("assets/images/group.jpg"),};
+=======
+  SharedData sd = new SharedData();
+>>>>>>> 1f79553e5372dd9ef5e506f395adb6bbf2823a13
 
   Widget buildBody(BuildContext context) {
    return StreamBuilder<QuerySnapshot>(
 
+<<<<<<< HEAD
      stream: getUserTrip(),
      builder: (context, snapshot) {
        if (snapshot.hasError) {
@@ -44,6 +54,21 @@ class _MyTripsState extends State<MyTrips> {
        return CircularProgressIndicator();
      },
    );
+=======
+      stream: sd.getUserTrip(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Text('Error ${snapshot.error}');
+        }
+        if (snapshot.hasData) {
+          //print("Documents ${snapshot.data.documents.length}");
+          return buildList(context, snapshot.data.documents);
+        }
+
+        return CircularProgressIndicator();
+      },
+    );
+>>>>>>> 1f79553e5372dd9ef5e506f395adb6bbf2823a13
   }
   Widget buildList(BuildContext context, List<DocumentSnapshot> snapshot) {
     return ListView(

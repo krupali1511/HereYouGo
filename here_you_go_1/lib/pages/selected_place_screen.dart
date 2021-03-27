@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:here_you_go_1/models/trips.dart';
-import 'package:here_you_go_1/pages/read_blog.dart';
+import 'file:///E:/SDP/here_you_go_1/lib/Screens/read_blog.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class SelectedPlaceScreen extends StatelessWidget {
