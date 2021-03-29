@@ -31,7 +31,7 @@ class NavigationBloc extends Bloc<NavigationEvents, NavigationStates> {
         yield HomePage();
         break;
       case NavigationEvents.MyBlogPageClickedEvent:
-        yield MyBlogPage();
+        yield ViewBlog();
         break;
       case NavigationEvents.MyTripClickedEvent:
         yield Usertrip();

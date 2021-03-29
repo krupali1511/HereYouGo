@@ -1,18 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../bloc.navigation_bloc/navigation_bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:here_you_go_1/models/ExpenseModel.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
+import 'dart:math' as math;
 
-class Expense extends StatefulWidget with NavigationStates{
-  const Expense({Key key}) : super(key: key);
+class Expense extends StatefulWidget with NavigationStates {
+  final String tripName;
+
+  const Expense({Key key, this.tripName}) : super(key: key);
 
   @override
   _ExpenseState createState() => _ExpenseState();
 }
 
-class _ExpenseState extends State<Expense> {
+class _ExpenseState extends State<Expense> with TickerProviderStateMixin {
   String title = "Expense";
   String test = "";
   final noteController = TextEditingController();
@@ -22,30 +27,33 @@ class _ExpenseState extends State<Expense> {
   static int num = 0;
   bool isExpenseLoaded = false;
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
-  new GlobalKey<RefreshIndicatorState>();
+      new GlobalKey<RefreshIndicatorState>();
 
   getExpenses() {
-    return Firestore.instance.collection(collection).where("tripId", isEqualTo: "trips").snapshots();
+    return Firestore.instance
+        .collection(collection)
+        .where("tripID", isEqualTo: widget.tripName)
+        .snapshots();
   }
 
   addExpenses() {
     ExpenseModel expense = ExpenseModel(
-        note: noteController.text, amount: double.parse(amountController.text));
+        note: noteController.text,
+        amount: double.parse(amountController.text),
+        tripID: widget.tripName);
     try {
       setState(() {
         expenseTotal += double.parse(amountController.text);
-        num +=1;
-
+        num += 1;
       });
       Firestore.instance.runTransaction(
-            (Transaction transaction) async {
+        (Transaction transaction) async {
           await Firestore.instance
               .collection(collection)
               .document()
               .setData(expense.toJson());
         },
       );
-
     } catch (e) {
       print(e.toString());
     }
@@ -64,23 +72,25 @@ class _ExpenseState extends State<Expense> {
     } catch (e) {
       print(e.toString());
     }
-  }   
+  }
 
   deleteExpense(ExpenseModel expenseModel) {
     setState(() {
       expenseTotal -= expenseModel.amount;
-      num -=1;
+      num -= 1;
     });
     Firestore.instance.runTransaction(
-          (Transaction transaction) async {
+      (Transaction transaction) async {
         await transaction.delete(expenseModel.reference);
       },
     );
   }
 
   initExpenses() async {
-    QuerySnapshot querySnapshot =
-    await Firestore.instance.collection("expense").where("tripId", isEqualTo: "trips").getDocuments();
+    QuerySnapshot querySnapshot = await Firestore.instance
+        .collection("expense")
+        .where("tripID", isEqualTo: widget.tripName)
+        .getDocuments();
     var list = querySnapshot.documents;
     var temp = 0.00;
     for (int i = 0; i < list.length; i++) {
@@ -91,12 +101,12 @@ class _ExpenseState extends State<Expense> {
       expenseTotal = temp;
       isExpenseLoaded = true;
     });
+
     print(expenseTotal.toString());
   }
 
   Widget buildBody(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-
       stream: getExpenses(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
@@ -113,8 +123,8 @@ class _ExpenseState extends State<Expense> {
 
   Widget buildList(BuildContext context, List<DocumentSnapshot> snapshot) {
     return ListView(
-        scrollDirection: Axis.vertical,
-        shrinkWrap: true,
+      scrollDirection: Axis.vertical,
+      shrinkWrap: true,
       children: snapshot.map((data) => buildListItem(context, data)).toList(),
     );
   }
@@ -134,7 +144,10 @@ class _ExpenseState extends State<Expense> {
           title: Text(expense.amount.toString()),
           subtitle: Text(expense.note),
           trailing: IconButton(
-            icon: Icon(Icons.delete,color: Colors.black,),
+            icon: Icon(
+              Icons.delete,
+              color: Colors.black,
+            ),
             onPressed: () {
               // delete
               deleteExpense(expense);
@@ -179,10 +192,7 @@ class _ExpenseState extends State<Expense> {
                   )
                 ]).show();
           },
-
         ),
-
-
       ),
     );
   }
@@ -192,68 +202,92 @@ class _ExpenseState extends State<Expense> {
     super.initState();
     WidgetsBinding.instance
         .addPostFrameCallback((_) => _refreshIndicatorKey.currentState.show());
-    print("init");
   }
 
   Widget build(BuildContext context) {
+    var size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        title: Text("Expense", style: TextStyle(color: Colors.white),),
+        title: Text(
+          "Expense",
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: Colors.black87,
       ),
       body: RefreshIndicator(
-          key: _refreshIndicatorKey,
-          onRefresh: () async {
-            if(!isExpenseLoaded)
-              await initExpenses();
-            return null;
-          },
-          child: Container(
-            child: Column(
-              children: [
-                SizedBox(
-                  height: 200,
-                  width: double.infinity,
-                  child: Container(
-                    child: Card(
-                      child: Center(
-                        child: Column(
+        key: _refreshIndicatorKey,
+        onRefresh: () async {
+          if (!isExpenseLoaded) await initExpenses();
+          return null;
+        },
+        child: Container(
+          child: Column(
+            children: [
+              SizedBox(
+                height: 300,
+                width: double.infinity,
+                child: Card(
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Row(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Text("Total Expense",
-                              style: TextStyle(color: Colors.white,fontSize: 18.0),),
-                            Text(expenseTotal.toString(), style: TextStyle(color: Colors.white,fontSize: 20.0,                                fontWeight: FontWeight.bold,
-                            ),),
+                          children: [
+                            Text(
+                              expenseTotal.toString(),
+                              style: GoogleFonts.lato(
+                                color: Colors.white,
+                                fontSize: 34.0,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              "  Total",
+                              style: GoogleFonts.lato(
+                                color: Colors.white,
+                                fontSize: 28.0,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
                             RichText(
                               text: TextSpan(
                                 text: num.toString(),
-                                style: TextStyle(
-                                    fontSize: 16.0,
+                                style: GoogleFonts.lato(
+                                    fontSize: 22.0,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.white),
                               ),
                             ),
                             Text(
-                              "Total Expenses",
-                              style: TextStyle(fontSize: 16.0,color: Colors.white),
+                              "  Total Expenses",
+                              style: GoogleFonts.lato(
+                                  fontSize: 20.0, color: Colors.white),
                             ),
                           ],
                         ),
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      color: Colors.black87,
+                      ],
                     ),
                   ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  color: Colors.black87,
                 ),
-                Flexible(child: buildBody(context)),
-
-              ],
-            ),
+              ),
+              Flexible(child: buildBody(context)),
+            ],
           ),
         ),
-
+      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
           await Alert(
@@ -293,11 +327,26 @@ class _ExpenseState extends State<Expense> {
                 )
               ]).show();
         },
-        label: Text('Add',
-            style: TextStyle(color:Colors.white)),
-        icon: Icon(Icons.add, color:Colors.white),
+        label: Text('Add', style: TextStyle(color: Colors.white)),
+        icon: Icon(Icons.add, color: Colors.white),
         backgroundColor: Colors.black87,
       ),
     );
+  }
+}
+
+class CustomHalfCircleClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    final Path path = new Path();
+    path.lineTo(0.0, size.height / 2);
+    path.lineTo(size.width, size.height / 2);
+    path.lineTo(size.width, 0);
+    return path;
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) {
+    return true;
   }
 }

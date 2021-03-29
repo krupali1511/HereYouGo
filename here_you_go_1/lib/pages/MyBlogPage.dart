@@ -1,116 +1,286 @@
-import 'dart:ui';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:here_you_go_1/models/trips.dart';
+import 'package:here_you_go_1/bloc.navigation_bloc/navigation_bloc.dart';
+import 'package:here_you_go_1/screens/read_blog.dart';
+import 'package:here_you_go_1/Screens/add_blog_screen.dart';
 
-import '../bloc.navigation_bloc/navigation_bloc.dart';
 
-class MyBlogPage extends StatelessWidget with NavigationStates {
+class ViewBlog extends StatefulWidget with NavigationStates{
+  @override
+  final String tripName;
+  const ViewBlog({Key key, this.tripName}) : super(key: key);
+  _ViewBlogState createState() => _ViewBlogState();
+}
+
+class _ViewBlogState extends State<ViewBlog> {
+  String collection = "blogs";
+  final firestore = Firestore.instance;
+  static CollectionReference reference =
+  Firestore.instance.collection('blog');
+
+
+  String userid;
+  getUser() async {
+    String userId = ( await FirebaseAuth.instance.currentUser()).uid;
+    userid = userId;
+  }
+
+  getBlogByUser(){
+    return Firestore.instance.collection(collection).where("uid", isEqualTo: userid).getDocuments();
+
+  }
+
+  Future getblog() async{
+    QuerySnapshot qs= await firestore.collection(collection).getDocuments();
+    return qs.documents;
+  }
+
+  Future deleteBlog(String id) async {
+    /*return await firestore.collection(collection).document(id).delete().catchError((e) {
+      print(e);
+    });*/
+    return Firestore.instance.runTransaction((Transaction transaction) async {
+      await reference.document(id).delete().catchError((error) {
+        print(error);
+      });
+    });
+
+    //return true;
+  }
+
+  Future getBlogByCategory(String category)async{
+    QuerySnapshot qs= await firestore.collection(collection).where('category').getDocuments();
+    return qs.documents;
+  }
+
+  /*deleteBlog(DocumentReference blogRef) {
+    Firestore.instance.runTransaction(
+          (Transaction transaction) async {
+        await transaction.delete(blogModel.reference);
+      },
+    );
+  }*/
+
+
+
+  neviagteToBlogDetails(DocumentSnapshot blogSnapshot){
+    Navigator.push(context, MaterialPageRoute(builder: (context)=>BlogScreen(blogSnapshot: blogSnapshot,)));
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          "My Blogs"
-        ),
-      ),
-      body: MyBlogs(),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          // Add your onPressed code here!
-        },
-        label: Text('Create new'),
-        icon: Icon(Icons.add),
-        backgroundColor: Colors.black54,
-      ),
-
-    );
-  }
-}
-class MyBlogs extends StatefulWidget {
-  @override
-  _MyBlogsState createState() => _MyBlogsState();
-}
-
-class _MyBlogsState extends State<MyBlogs> {
-  final _pageController = new PageController(viewportFraction: 0.877);
-  @override
-  Widget build(BuildContext context) {
-    return  Container(
-        padding: EdgeInsets.all(12.0),
-        child: GridView.builder(
-          itemCount: trip.length,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 1,
-              crossAxisSpacing: 4.0,
-              mainAxisSpacing: 4.0
-          ),
-          itemBuilder: (BuildContext context, int index){
-            return  InkWell(
-              child: Container(
-                margin: EdgeInsets.all(5.8),
-               // width: 333.6,
-                //height: 218.4,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(9.6),
-                    image: DecorationImage(
-                        fit: BoxFit.cover,
-                        image: AssetImage(trip[index].image))),
-                child: Stack(
-                  children: <Widget>[
-                    Positioned(
-                      bottom: 19.2,
-                      left: 19.2,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(4.8),
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(
-                            sigmaX: 19.2,
-                            sigmaY: 19.2,
-                          ),
-                          child: Container(
-                            height: 36,
-                            padding: EdgeInsets.only(
-                                left: 16.72, right: 14.4),
-                            alignment: Alignment.centerLeft,
-                            child: Row(
-                              children: <Widget>[
-                                SvgPicture.asset(
-                                    'assets/svg/icon_location.svg'),
-                                SizedBox(
-                                  width: 9.52,
+      appBar: AppBar(title: Text('My Blogs'),),
+      body: FutureBuilder(
+        future: getBlogByUser(),
+        //future: getBlogByUser(),
+        builder: (_, snapshot){
+          if(snapshot.connectionState==ConnectionState.waiting){
+            return Center(
+              child: Text('Loading...'),
+            );
+          }
+          else{
+            return ListView.builder(
+              //itemCount: snapshot.data.length,
+              itemBuilder: (_, index){
+                return Container(
+                    margin: EdgeInsets.only(bottom: 24),
+                    width: MediaQuery.of(context).size.width,
+                    child: Container(
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        alignment: Alignment.bottomCenter,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.only(
+                                bottomRight: Radius.circular(6),
+                                bottomLeft: Radius.circular(6))),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(6),
+                              child: Image.network(
+                                snapshot.data[index].data['picture'],
+                                height: 300,
+                                width: MediaQuery.of(context).size.width,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                            SizedBox(
+                              height: 12,
+                            ),
+                            Row(
+                              children: [
+                                GestureDetector(
+                                  onTap: (){
+                                    //Navigator.push(context, MaterialPageRoute(builder: (context)=>ReadBlog()));
+                                    //neviagteToBlogDetails(snapshot.data[index].data);
+                                    neviagteToBlogDetails(snapshot.data[index]);
+                                  },
+                                  child: Text(
+                                    snapshot.data[index].data['blogname'],
+                                    maxLines: 2,
+                                    /*style: TextStyle(
+                                      color: Colors.black87,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w500)*/
+                                    style: GoogleFonts.lato(
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.black,
+                                        fontSize: 22.0),
+                                  ),
                                 ),
-                                Text(
-                                  trip[index].name,
-                                  style: GoogleFonts.lato(
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.white,
-                                      fontSize: 16.8),
-                                ),
-                                Text(
-                                  "",
-                                  style: GoogleFonts.lato(
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.white,
-                                      fontSize: 16.8),
-                                )
                               ],
                             ),
-                          ),
+                            SizedBox(
+                              height: 4,
+                            ),
+                            /*Text(
+                              document['description'],
+                              maxLines: 2,
+                              style: TextStyle(color: Colors.black54, fontSize: 14),
+                            )*/
+                          ],
                         ),
                       ),
-                    ),
-
-                  ],
-                ),
-              ),
+                    ));
+              },
             );
-          },
+          }
+        },),
 
-        ),
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      /*StreamBuilder(
+        stream: firestore.collection(collection).snapshots(),
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (!snapshot.hasData) {
+            return Center(
+              child: Text('No Data Available'),
+            );
+          }
+          return ListView(
+              children: snapshot.data.documents.map((document) {
+
+                /*return Center(
+                child: Container(
+                  child: Text("Name="+document['name']),
+                ),
+              );*/
+
+                return Container(
+                    margin: EdgeInsets.only(bottom: 24),
+                    width: MediaQuery.of(context).size.width,
+                    child: Container(
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        alignment: Alignment.bottomCenter,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.only(
+                                bottomRight: Radius.circular(6),
+                                bottomLeft: Radius.circular(6))),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            ClipRRect(
+                                borderRadius: BorderRadius.circular(6),
+                                child: Image.network(
+                                  document.data['picture'],
+                                  height: 300,
+                                  width: MediaQuery.of(context).size.width,
+                                  fit: BoxFit.cover,
+                                ),
+                            ),
+                            SizedBox(
+                              height: 12,
+                            ),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap: (){
+                                      //Navigator.push(context, MaterialPageRoute(builder: (context)=>ReadBlog()));
+                                      neviagteToBlogDetails(snapshot.data.documents[index]);
+
+                                    },
+                                    child: Text(
+                                      document['blogname'],
+                                      maxLines: 2,
+                                      /*style: TextStyle(
+                                        color: Colors.black87,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w500)*/
+                                      style: GoogleFonts.lato(
+                                          fontWeight: FontWeight.w700,
+                                          color: Colors.black,
+                                          fontSize: 22.0),
+                                    ),
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: (){
+                                    //Navigator.push(context, MaterialPageRoute(builder: (context)=>AddBlog()));
+
+                                  },
+                                  child: Expanded(
+                                    child: Icon(
+                                      Icons.delete,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: 4,
+                            ),
+                            /*Text(
+                              document['description'],
+                              maxLines: 2,
+                              style: TextStyle(color: Colors.black54, fontSize: 14),
+                            )*/
+                          ],
+                        ),
+                      ),
+                    ));
+              }).toList());
+        },
+      ),*/
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>AddBlog()));
+        },
+        icon: Icon(Icons.add),
+        label: Text('Create new'),
+        backgroundColor: Colors.black54,
+      ),
     );
+
+
 
   }
 }

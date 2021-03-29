@@ -243,12 +243,9 @@ class _CurrencyPageState extends State<CurrencyPage> with TickerProviderStateMix
 
                 ],
               ),
-
             ],
           ),
         ),
-
-
       ),
     );
   }

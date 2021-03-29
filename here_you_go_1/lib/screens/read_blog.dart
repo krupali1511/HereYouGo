@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/svg.dart';
@@ -11,8 +12,7 @@ class ReadBlog extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.black87,
-          title: Text("Blog",style: TextStyle(color: Colors.white),),
+          title: Text("Blogs"),
         ),
         body: BlogScreen(),
       ),
@@ -20,70 +20,115 @@ class ReadBlog extends StatelessWidget {
   }
 }
 class BlogScreen extends StatefulWidget {
+
+  final DocumentSnapshot blogSnapshot;
+  BlogScreen({this.blogSnapshot});
+
   @override
   _BlogScreenState createState() => _BlogScreenState();
 }
 
 class _BlogScreenState extends State<BlogScreen> {
+
+  String  collection="blogs";
+  final firestore = Firestore.instance;
+
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Container(
-        width : double.infinity,
-        child: Card(
-          semanticContainer: true,
-          clipBehavior: Clip.antiAliasWithSaveLayer,
-          child:SizedBox(
-            child: Column(
-              children: <Widget>[
-                Image(image: AssetImage('assets/images/b.jpg')),
-                Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text("Bali is a favorite destination for many people around the world and it’s easy to see why! From its list of unending idyllic beaches, captivating spiritual energy, terraced rice fields and exotic sunsets. There is so much to see and experience on this magnificent island paradise! Going to Bali feels like going on a never-ending adventure – there is an activity to suit every soul! Experience surfing, yoga, meditation, trekking, delicious food or amazing nightlife. Certain areas of Bali have been influenced by tourism, with hubs of cute cafes, hip bars, and vegan restaurants. Other areas are still quite remote, maintaining their uniquely Balinese beauty and charm.", style: GoogleFonts.lato(
-                      fontSize: 18, fontWeight: FontWeight.w500,
-                      ),),
-                    ),
-                Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Container(
-                    height: 57.6,
-                    margin: EdgeInsets.only(top: 28.8, left: 28.8, right: 28.8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        //custom nav drawer
-                        Container(
-                          height: 57.6,
-                          width: 57.6,
-                          padding: EdgeInsets.all(18),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(9.6),
-                            color: Color(0x080a0928),
-                          ),
-                          child: SvgPicture.asset("assets/svg/icon_drawer.svg"),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Blogs"),
+      ),
+      body: SingleChildScrollView(
+        child: Container(
+          width : double.infinity,
+          child: Card(
+            semanticContainer: true,
+            clipBehavior: Clip.antiAliasWithSaveLayer,
+            child:SizedBox(
+              child: Column(
+                children: <Widget>[
+
+                  Image.network(
+                    //'https://placeimg.com/640/480/bike',
+                    widget.blogSnapshot.data["picture"],
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Text(
+                      /*"1I'm building a layout with a GridView and Cards. "
+                        "I want to put a color to the bottom of each card. I found"
+                        " this question Fill an area with color in Flutter and tried "
+                        "to do the same trick for bottom, but each time The SizedBox "
+                        "Overflows the round card corners. Any idea of how to fix this?   "
+                        " The sample code below shows the issue. I try to color the "
+                        "bottom part of the card, and when I do this, the corners of "
+                        "the card are lost, like overflow from the Container.",*/
+                      widget.blogSnapshot.data["blogname"],
+                      style: GoogleFonts.lato(
+                        fontSize: 20, fontWeight: FontWeight.w800,
                         ),
-                        Container(
-                          padding: EdgeInsets.all(18),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(9.6),
-                            color: Color(0x080a0928),
-                          ),
-                          child: Text("Username"),
-                        )
-                      ],
+                      ),
+                      ),
+                  Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Text(
+                      /*"1I'm building a layout with a GridView and Cards. "
+                        "I want to put a color to the bottom of each card. I found"
+                        " this question Fill an area with color in Flutter and tried "
+                        "to do the same trick for bottom, but each time The SizedBox "
+                        "Overflows the round card corners. Any idea of how to fix this?   "
+                        " The sample code below shows the issue. I try to color the "
+                        "bottom part of the card, and when I do this, the corners of "
+                        "the card are lost, like overflow from the Container.",*/
+                      widget.blogSnapshot.data["description"],
+                      style: GoogleFonts.lato(
+                        fontSize: 18, fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                  Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Container(
+                      height: 57.6,
+                      margin: EdgeInsets.only(top: 28.8, left: 28.8, right: 28.8),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          //custom nav drawer
+                          Container(
+                            height: 57.6,
+                            width: 57.6,
+                            padding: EdgeInsets.all(18),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(9.6),
+                              color: Color(0x080a0928),
+                            ),
+                            child: SvgPicture.asset("assets/svg/icon_drawer.svg"),
+                          ),
+                          Container(
+                            padding: EdgeInsets.all(18),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(9.6),
+                              color: Color(0x080a0928),
+                            ),
+                            child: Text("Username"),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ) ,
+
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
             ),
-          ) ,
+            elevation: 5,
+            margin: EdgeInsets.all(10),
 
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10.0),
           ),
-          elevation: 5,
-          margin: EdgeInsets.all(10),
-
         ),
       ),
     );

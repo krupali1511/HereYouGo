@@ -13,6 +13,7 @@ void main() => runApp(MyApp());
     return StreamProvider<User>.value(
       value: AuthService().user,
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         home: Wrapper(),
       ),
     );
