@@ -5,7 +5,7 @@ import 'package:here_you_go_1/pages/ProfilePage.dart';
 import 'package:here_you_go_1/pages/currencyConverter.dart';
 import 'package:here_you_go_1/pages/mainTrip.dart';
 import 'package:here_you_go_1/pages/myexpensepage.dart';
-import 'package:here_you_go_1/pages/mytripspage.dart';
+import 'package:here_you_go_1/pages/subtripspage.dart';
 
 import '../pages/homepage.dart';
 

@@ -48,7 +48,7 @@ class _SignUpState extends State<SignUp> {
                   children: [
                     Padding(
                       padding: const EdgeInsets.only(bottom:16.0),
-                      child: Text('login',
+                      child: Text('Register',
                         style:GoogleFonts.playfairDisplay(
                           fontSize: 38.6,
                           color: Colors.white,
@@ -200,7 +200,7 @@ class _SignUpState extends State<SignUp> {
                     ),
                     FlatButton(
                       child: Text(
-                        'Create Account',
+                        'Login',
                         style: TextStyle(
                           color: Colors.white,
                           decoration: TextDecoration.underline,

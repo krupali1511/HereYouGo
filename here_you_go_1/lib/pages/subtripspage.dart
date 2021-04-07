@@ -1,14 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:here_you_go_1/Screens/TripDetails.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:here_you_go_1/models/tripModel.dart';
+import 'package:here_you_go_1/screens/TripDetails.dart';
 import 'package:here_you_go_1/services/TripApi.dart';
 
 class MyTrips extends StatefulWidget {
-  final String tripName;
+  final String trip;
 
-  const MyTrips({Key key, this.tripName}) : super(key: key);
+  const MyTrips({Key key, this.trip}) : super(key: key);
+
 
   @override
   _MyTripsState createState() => _MyTripsState();
@@ -37,12 +39,16 @@ class _MyTripsState extends State<MyTrips> {
           print('hellooooo');
           return Text('Error ${snapshot.error}');
         }
+        if(!snapshot.hasData){
+          return Center(child: Text("Add your next trip path",style: GoogleFonts.playfairDisplay(fontWeight: FontWeight.bold,fontSize: 28),));
+        }
         if (snapshot.hasData) {
           //print("Documents ${snapshot.data.documents.length}");
           print(userid);
           return buildList(context, snapshot.data.documents);
 
         }
+
         return CircularProgressIndicator();
       },
     );
@@ -83,10 +89,7 @@ class _MyTripsState extends State<MyTrips> {
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: <Widget>[
                         Text(
-                          tripModel.source.toString() +
-                              '-' +
-                              tripModel.destination.toString(),
-                          style: TextStyle(color: Colors.white),
+                          tripModel.source.toString() + '-' + tripModel.destination.toString(), style: TextStyle(color: Colors.white),
                         ),
                         Row(
                           children: <Widget>[
@@ -96,22 +99,6 @@ class _MyTripsState extends State<MyTrips> {
                         )
                       ],
                     ),
-                  ),
-                ),
-              ),
-            ),
-            Positioned(
-              top: 7.5,
-              child: Container(
-                width: 100.0,
-                height: 100.0,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  image: DecorationImage(
-                    fit: BoxFit.cover,
-                    image: tripModel.catvalue.toString() == null
-                        ? images["wind"]
-                        : images[tripModel.catvalue],
                   ),
                 ),
               ),
@@ -126,9 +113,7 @@ class _MyTripsState extends State<MyTrips> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          "Trips",
-          style: TextStyle(color: Colors.white),
+        title: Text(widget.trip,style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.black,
       ),
@@ -138,7 +123,6 @@ class _MyTripsState extends State<MyTrips> {
             Container(
               child: buildBody(context),
             ),
-            Text(widget.tripName)
           ],
         ),
       ),
@@ -146,7 +130,8 @@ class _MyTripsState extends State<MyTrips> {
           backgroundColor: Colors.black87,
           onPressed: () {
             Navigator.push(context,
-                MaterialPageRoute(builder: (context) => TripDetails()));
+                MaterialPageRoute(builder: (context) => TripDetails(tripName: widget.trip,)));
+            print('hiiii' + widget.trip);
           },
           label: Text("add")),
     );
@@ -170,7 +155,7 @@ class _MyTripsState extends State<MyTrips> {
     return Firestore.instance
         .collection('trip')
         .document(userid)
-        .collection('collectionPath')
+        .collection(widget.trip)
         .snapshots();
   }
 }

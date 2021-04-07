@@ -35,6 +35,7 @@ dependencies:
   flutter_custom_clippers:
   country_state_city_picker:
   flutter_slidable:
+  date_format:
 
 dev_dependencies:
   flutter_test:

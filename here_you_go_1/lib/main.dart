@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:here_you_go_1/pages/mytripspage.dart';
+import 'package:here_you_go_1/pages/subtripspage.dart';
 import 'package:here_you_go_1/services/auth.dart';
 import 'package:here_you_go_1/src/wrapper.dart';
 import 'package:provider/provider.dart';

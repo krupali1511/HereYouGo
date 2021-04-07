@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:here_you_go_1/pages/category.dart';
 import 'package:here_you_go_1/pages/myexpensepage.dart';
 import '../bloc.navigation_bloc/navigation_bloc.dart';
 import 'package:flutter/cupertino.dart';
@@ -9,7 +10,7 @@ import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:here_you_go_1/models/usertrip_model.dart';
 
 import 'MyBlogPage.dart';
-import 'mytripspage.dart';
+import 'subtripspage.dart';
 
 class Usertrip extends StatefulWidget with NavigationStates{
   const Usertrip({Key key}) : super(key: key);
@@ -20,10 +21,8 @@ class Usertrip extends StatefulWidget with NavigationStates{
 
 class _UsertripState extends State<Usertrip> {
   static String userid="";
-  String title = "MyTrips";
-  String category;
   String collection = "usertrip";
-  TextEditingController tripNameCont = new TextEditingController();
+
 
   bool isExpenseLoaded = false;
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
@@ -34,41 +33,35 @@ class _UsertripState extends State<Usertrip> {
     userid = userId;
   }
   getTrip() {
+    getUser();
     print(userid);
     return Firestore.instance.collection(collection).where("uid", isEqualTo: userid).snapshots();
   }
-  generateTripCollection(){
 
-    UserTripModel usertrip =  UserTripModel(name: tripNameCont.text, uid: userid,category: category);
-    try {
-      //generating empty sub-collection into "trip" collection
-      Firestore.instance.collection('trip').document(userid).collection(tripNameCont.text).snapshots();
-      // adding trip name, category, uid to "usertrip" collection
-      Firestore.instance.runTransaction(
-            (Transaction transaction) async {
-          await Firestore.instance
-              .collection(collection)
-              .document()
-              .setData(usertrip.toJson());
-        },
-      );
+  final Map<String, AssetImage> images = {"Adventure": AssetImage("assets/images/adventure.png"),
+    "Roadtrip": AssetImage("assets/images/roadtrip.png"),
+    "Religious": AssetImage("assets/images/temple.png"),"Family": AssetImage("assets/images/family.png"),
+    "Single": AssetImage("assets/images/single.png"),"Group": AssetImage("assets/images/group.png"),};
 
-    } catch (e) {
-      print(e.toString());
-    }
-  }
 
   Widget buildBody(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
       stream: getTrip(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
+          print('hellooooo');
           return Text('Error ${snapshot.error}');
+        }
+        if(!snapshot.hasData){
+          return Center(child: Text("Add your next trip path",style: GoogleFonts.playfairDisplay(fontWeight: FontWeight.bold,fontSize: 28),));
         }
         if (snapshot.hasData) {
           //print("Documents ${snapshot.data.documents.length}");
+          print(userid);
           return buildList(context, snapshot.data.documents);
+
         }
+
         return CircularProgressIndicator();
       },
     );
@@ -83,77 +76,105 @@ class _UsertripState extends State<Usertrip> {
   }
 
   Widget buildListItem(BuildContext context, DocumentSnapshot data) {
-    final userTripModel = UserTripModel.fromSnapshot(data);
+    final userTripModel=UserTripModel.fromSnapshot(data);
     return Padding(
-      key: ValueKey(data.reference.documentID),
-      padding: EdgeInsets.symmetric(vertical: 8.0),
+      padding:
+      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Container(
-        child:InkWell(
-          onTap: (){
-            Navigator.push(context, MaterialPageRoute(builder: (context) => MyTrips(tripName:userTripModel.name,)));
-          },
-          child: Card(
-            color: Colors.black87,
-            child: Padding(
-              padding: const EdgeInsets.only(
-                top: 8.0,
-                bottom: 8.0,
-                left: 20.0,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment:
-                MainAxisAlignment.spaceAround,
-                children: <Widget>[
-                  Text(userTripModel.name.toUpperCase(),style: GoogleFonts.playfairDisplay(color:Colors.white,fontSize: 24,), ),
-                  Row(
-                    children: <Widget>[
-                      new FlatButton(
-                        child: RichText(
-                          text: TextSpan(
-                            children: [
-                              WidgetSpan(
-                                child: Icon(Icons.add, size: 18,color: Colors.white,),
-                              ),
-                              TextSpan(
-                                text: "Add Expense ",
-                              ),
+        height: 115,
+        child: Stack(
+          children: [
+            Positioned(
+              left: 50,
 
-                            ],
-                          ),
-                        ),
-                        onPressed: () {
-                          Navigator.push(context,MaterialPageRoute(builder: (context)=>Expense(tripName:userTripModel.name,)));
-                        },
-                      ),
-                      new FlatButton(
-                        child: RichText(
-                          text: TextSpan(
-                            children: [
-                              WidgetSpan(
-                                child: Icon(Icons.add, size: 18,color: Colors.white,),
-                              ),
-                              TextSpan(
-                                text: "Add Blog ",
-                              ),
+              child: Container(
+                width: 300.0,
+                height: 115.0,
+                child: Card(
+                    color: Colors.black87,
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) =>MyTrips(trip: userTripModel.name,)));
+                    },
 
-                            ],
-                          ),
-                        ),
-                        onPressed: () {
-                          Navigator.push(context,MaterialPageRoute(builder: (context)=>ViewBlog(tripName:userTripModel.name,)));
-                        },
-                      ),
-                    ],
-                  )
-                ],
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                      top: 8.0,
+                      bottom: 8.0,
+                      left: 44.0,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment:
+                      MainAxisAlignment.spaceAround,
+                      children: <Widget>[
+                        Text(userTripModel.name.toUpperCase(),style: GoogleFonts.playfairDisplay(color:Colors.white,fontSize: 20,), ),
+                        Row(
+                          children: <Widget>[
+                            new FlatButton(
+                              child: RichText(
+                                text: TextSpan(
+                                  children: [
+                                    WidgetSpan(
+                                      child: Icon(Icons.add, size: 18,color: Colors.white,),
+                                    ),
+                                    TextSpan(
+                                      text: "Add Expense ",
+                                    ),
+
+                                  ],
+                                ),
+                              ),
+                              onPressed: () {
+                                Navigator.push(context,MaterialPageRoute(builder: (context)=>Expense(tripName:userTripModel.name,)));
+                              },
+                            ),
+                            new FlatButton(
+                              child: RichText(
+                                text: TextSpan(
+                                  children: [
+                                    WidgetSpan(
+                                      child: Icon(Icons.add, size: 18,color: Colors.white,),
+                                    ),
+                                    TextSpan(
+                                      text: "Add Blog ",
+                                    ),
+
+                                  ],
+                                ),
+                              ),
+                              onPressed: () {
+                                Navigator.push(context,MaterialPageRoute(builder: (context)=>ViewBlog(tripName:userTripModel.name,)));
+                              },
+                            ),
+                          ],
+                        )
+
+                      ],
+                    ),
+                  ),)
+                ),
+
+
               ),
             ),
-          ),
+            Positioned(
+              top: 7.5,
+              child: Container(
+                width: 100.0,
+                height: 100.0,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  image: DecorationImage(
+                   fit: BoxFit.cover,
+                   image: userTripModel.category.toString()== null ? images["wind"] : images[userTripModel.category],
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
-
-
     );
   }
 
@@ -171,7 +192,7 @@ class _UsertripState extends State<Usertrip> {
       appBar: AppBar(
         title: Padding(
           padding: const EdgeInsets.only(left:20.0),
-          child: Text(title, style: TextStyle(color: Colors.white),),
+          child: Text('     My Trips', style: TextStyle(color: Colors.white),),
         ),
         backgroundColor: Colors.black87,
       ),
@@ -196,61 +217,8 @@ class _UsertripState extends State<Usertrip> {
 
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
-          await Alert(
-              context: context,
-              title: "Add Trip",
-              content: Column(
-                children: <Widget>[
-                  TextField(
-                    controller: tripNameCont,
-                    decoration: InputDecoration(
-                      icon: Icon(Icons.book,color: Colors.black,),
-                      labelText: 'Trip Name',
-                    ),
-                  ),
-                  DropdownButton<String>(
-                    value: category,
-                    icon: const Icon(Icons.arrow_downward,color: Colors.black,),
-                    iconSize: 24,
-                    elevation: 16,
-                    style: GoogleFonts.lato(color: Colors.black,fontSize: 24),
-                    underline: Container(
-                      height: 2,
-                      color: Colors.black,
-                    ),
-                    onChanged: (String newValue) {
-                      setState(() {
-                        category = newValue;
-                      });
-                    },
-                    items: <String>['Adventure',
-                      'Roadtrip',
-                      'Religious',
-                      'Family',
-                      'Single',
-                      'Group']
-                        .map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                  ),
-                ],
-              ),
-              buttons: [
-                DialogButton(
-                  onPressed: () async {
-                    await generateTripCollection();
-                    tripNameCont.clear();
-                    Navigator.of(context, rootNavigator: true).pop();
-                  },
-                  child: Text(
-                    "Add",
-                    style: TextStyle(color: Colors.white, fontSize: 20),
-                  ),
-                )
-              ]).show();
+          Navigator.push(context,MaterialPageRoute(builder: (context)=>Category()));
+
         },
         label: Text('Add',
             style: TextStyle(color:Colors.white)),

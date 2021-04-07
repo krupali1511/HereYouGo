@@ -15,7 +15,7 @@ class trip {
   String catvalue;
   String modesoftransportation;
   String date;
-  TimeOfDay time;
+  String time;
   DocumentReference reference;
 
   trip(
