@@ -7,5 +7,5 @@ Track your expense during your trips.
 <br> Notifiction service 
 <br> Photo gallery also
 
-![currencyconverter](./HereYouGoUI/hereyougoui/assets/images/WhatsApp Image 2021-03-27 at 10.48.43 PM (1).jpeg)
+![currencyconverter](https://github.com/SanjanaPurohit2000/HereYouGO/tree/master/HereYouGoUI/hereyougoui/assets/image/WhatsApp Image 2021-03-27 at 10.48.43 PM (1).jpeg)
   
